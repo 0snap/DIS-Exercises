@@ -30,10 +30,6 @@ public class Menu {
 	private ArrayList<String> labels = new ArrayList<String>();
 	private ArrayList<Integer> returnValues = new ArrayList<Integer>();
 	
-	/**
-	 * Konstruktor.
-	 * @param title Titel des Menüs z.B. "Hauptmenü"
-	 */
 	public Menu(String title) {
 		super();
 		this.title = title;
