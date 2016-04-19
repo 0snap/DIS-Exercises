@@ -1,18 +1,14 @@
 package de.dis2011.data;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * EstateAgent-Pojo
  */
 public class EstateAgent {
 
-	public static final String DB_COLUMN_NAME = "NAME";
-	public static final String DB_COLUMN_ADDRESS = "ADDRESS";
+    public static final String DB_COLUMN_ID = "ID";
+    public static final String DB_COLUMN_NAME = "NAME";
+    public static final String DB_COLUMN_ADDRESS = "ADDRESS";
 	public static final String DB_COLUMN_LOGIN = "LOGIN";
 	public static final String DB_COLUMN_PASSWORD = "PASSWORD";
 	private int id = -1;

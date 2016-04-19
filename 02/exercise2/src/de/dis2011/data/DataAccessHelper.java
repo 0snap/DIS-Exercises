@@ -14,7 +14,7 @@ public class DataAccessHelper {
         try {
             Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-            String selectSQL = "SELECT * FROM estate_agent WHERE id = ?";
+            String selectSQL = "SELECT * FROM estate_agent WHERE " + EstateAgent.DB_COLUMN_ID + " = ?";
             PreparedStatement query = con.prepareStatement(selectSQL);
             query.setInt(1, id);
 
@@ -48,6 +48,7 @@ public class DataAccessHelper {
         Connection con = DB2ConnectionManager.getInstance().getConnection();
 
         try {
+            // new, create
             if (agent.getId() == -1) {
                 String insertSQL = "INSERT INTO estate_agent("
                         + EstateAgent.DB_COLUMN_NAME + ", "
@@ -56,12 +57,7 @@ public class DataAccessHelper {
                         + EstateAgent.DB_COLUMN_PASSWORD + ") VALUES (?, ?, ?, ?)";
 
                 PreparedStatement query = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
-
-                query.setString(1, agent.getName());
-                query.setString(2, agent.getAddress());
-                query.setString(3, agent.getLogin());
-                query.setString(4, agent.getPassword());
-                query.executeUpdate();
+                persistEstateAgent(agent, query);
 
                 ResultSet resultSet = query.getGeneratedKeys();
                 if (resultSet.next()) {
@@ -70,20 +66,19 @@ public class DataAccessHelper {
 
                 resultSet.close();
                 query.close();
-            } else {
+            }
+            // existing, update
+            else {
                 String updateSQL = "UPDATE estate_agent SET "
                         + EstateAgent.DB_COLUMN_NAME + " = ?, "
                         + EstateAgent.DB_COLUMN_ADDRESS + " = ?, "
                         + EstateAgent.DB_COLUMN_LOGIN + " = ?, "
-                        + EstateAgent.DB_COLUMN_PASSWORD + " = ? WHERE id = ?";
+                        + EstateAgent.DB_COLUMN_PASSWORD + " = ? WHERE "
+                        + EstateAgent.DB_COLUMN_ID + " = ?";
                 PreparedStatement query = con.prepareStatement(updateSQL);
 
-                query.setString(1, agent.getName());
-                query.setString(2, agent.getAddress());
-                query.setString(3, agent.getLogin());
-                query.setString(4, agent.getPassword());
-                query.setInt(5, agent.getId());
-                query.executeUpdate();
+                query.setInt(5, agent.getId()); // set already existing id to complete query, then persist
+                persistEstateAgent(agent, query);
 
                 query.close();
             }
@@ -91,5 +86,13 @@ public class DataAccessHelper {
             e.printStackTrace();
         }
         return agent.getId();
+    }
+
+    private void persistEstateAgent(EstateAgent agent, PreparedStatement query) throws SQLException {
+        query.setString(1, agent.getName());
+        query.setString(2, agent.getAddress());
+        query.setString(3, agent.getLogin());
+        query.setString(4, agent.getPassword());
+        query.executeUpdate();
     }
 }
