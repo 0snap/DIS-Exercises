@@ -1,6 +1,7 @@
 package de.dis2011;
 
 
+import de.dis2011.data.DataAccessHelper;
 import de.dis2011.data.EstateAgent;
 
 public class Main {
@@ -15,12 +16,21 @@ public class Main {
 	private static final int NEW_ESTATE_AGENT = 1;
 	private static final int EDIT_ESTATE_AGENT = 2;
 
+	private DataAccessHelper accessHelper;
+
 
 	public static void main(String[] args) {
-		showMainMenu();
+		Main main = new Main();
+		main.showMainMenu();
 	}
 
-	public static void showMainMenu() {
+	// non static application logic starts here:
+
+	Main() {
+		accessHelper = new DataAccessHelper();
+	}
+
+	private void showMainMenu() {
 
 		Menu mainMenu = new Menu("Main menu");
 		mainMenu.addEntry("EstateAgent Administration", MENU_ESTATE_AGENTS);
@@ -39,7 +49,7 @@ public class Main {
 		}
 	}
 	
-	public static void showEstateAgentMenu() {
+	private void showEstateAgentMenu() {
 
 		Menu maklerMenu = new Menu("EstateAgent Administration");
 		maklerMenu.addEntry("New EstateAgent", NEW_ESTATE_AGENT);
@@ -62,23 +72,23 @@ public class Main {
 		}
 	}
 	
-	public static void newEstateAgent() {
+	public void newEstateAgent() {
 		EstateAgent agent = new EstateAgent();
 		
 		agent.setName(FormUtil.readString("Name"));
 		agent.setAddress(FormUtil.readString("Adresse"));
 		agent.setLogin(FormUtil.readString("Login"));
 		agent.setPassword(FormUtil.readString("Passwort"));
-		int id = agent.save();
+		int id = accessHelper.save(agent);
 		
 		System.out.println("EstateAgent with ID " + id + " saved successfully.");
 	}
 
-	public static void editEstateAgent() {
+	public void editEstateAgent() {
 
 		int id = Integer.parseInt(FormUtil.readString("ID to edit"));
 
-		EstateAgent agent = EstateAgent.load(id);
+		EstateAgent agent = accessHelper.load(id);
 
 
 		if (!FormUtil.readString("Passwort bestätigen").equals(agent.getPassword())) {
@@ -90,6 +100,6 @@ public class Main {
 		agent.setAddress(FormUtil.readString("Adresse"));
 		agent.setLogin(FormUtil.readString("Login"));
 		agent.setPassword(FormUtil.readString("Passwort"));
-		agent.save();
+		accessHelper.save(agent);
 	}
 }
