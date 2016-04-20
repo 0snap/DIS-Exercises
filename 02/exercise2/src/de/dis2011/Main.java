@@ -114,17 +114,27 @@ public class Main {
 		System.out.println("EstateAgent with ID " + id + " saved successfully.");
 	}
 
-	public void editEstateAgent() {
-		int id = Integer.parseInt(FormUtil.readString("Agent ID to edit"));
-		EstateAgent agent = accessHelper.loadEstateAgent(id);
+	private void editEstateAgent() {
+		EstateAgent agent = loginEstateAgent();
 
-		if (!FormUtil.readString("Confirm password").equals(agent.getPassword())) {
-			System.out.println("Incorrect password! You are not allowed to edit this agent");
+		if(agent == null) {
+			//login failed
 			return;
 		}
 		// else
 		readEstateAgentProperties(agent);
 		accessHelper.save(agent);
+	}
+
+	private EstateAgent loginEstateAgent() {
+		int id = Integer.parseInt(FormUtil.readString("Login Agent ID"));
+		EstateAgent agent = accessHelper.loadEstateAgent(id);
+
+		if (!FormUtil.readString("Agent password").equals(agent.getPassword())) {
+			System.out.println("Incorrect password! You are not allowed to proceed");
+			return null;
+		}
+		return agent;
 	}
 
 	/** small helper for reading stuff from cli and passing it to an agent*/
@@ -136,23 +146,50 @@ public class Main {
 	}
 
 	public void newEstate() {
+		EstateAgent agent = loginEstateAgent();
+		if(agent == null) {
+			return;
+		}
+		// looged in, create new estate of this agent
 		Estate estate = new Estate();
 		readEstateProperties(estate);
+		estate.setEstateAgent(agent.getId());
 		int id = accessHelper.save(estate);
 
 		System.out.println("Estate with ID " + id + " saved successfully.");
 	}
 
 	public void editEstate() {
+		EstateAgent agent = loginEstateAgent();
+		if(agent == null) {
+			return;
+		}
+		// looged in, query estate of this agent
 		int id = Integer.parseInt(FormUtil.readString("Estate ID to edit"));
 		Estate estate = accessHelper.loadEstate(id);
-
+		if(estate.getEstateAgent() != agent.getId()) {
+			// logged in agent does not own this estate, cannot edit!
+			System.out.println("You do not own this estate, you cannot edit it.");
+			return;
+		}
 		readEstateProperties(estate);
 		accessHelper.save(estate);
 	}
 
     public void deleteEstate() {
+		EstateAgent agent = loginEstateAgent();
+		if(agent == null) {
+			return;
+		}
+		// looged in, query estate of this agent
         int id = Integer.parseInt(FormUtil.readString("Estate ID to delete"));
+
+		Estate estate = accessHelper.loadEstate(id);
+		if(estate.getEstateAgent() != agent.getId()) {
+			// logged in agent does not own this estate, cannot delete!
+			System.out.println("You do not own this estate, you cannot delete it.");
+			return;
+		}
         accessHelper.deleteEstate(id);
 
         System.out.println("Estate with ID " + id + " deleted successfully.");
@@ -166,7 +203,6 @@ public class Main {
 		estate.setStreet(FormUtil.readString("Street"));
 		estate.setStreetNumber(FormUtil.readInt("Street number"));
 		estate.setSquareArea(FormUtil.readString("Square area"));
-		estate.setEstateAgent(FormUtil.readInt("Responsive Agent ID"));
 	}
 
 
