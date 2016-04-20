@@ -165,6 +165,21 @@ public class DataAccessHelper {
         return null;
     }
 
+    public void deleteEstate(int id){
+        try {
+            Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+            String deleteSQL = "DELETE FROM estate WHERE " + Estate.DB_COLUMN_ID + " = ?";
+            PreparedStatement query = con.prepareStatement(deleteSQL);
+            query.setInt(1, id);
+            query.executeUpdate();
+            query.close();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void updateEstate(Estate estate, Connection con) throws SQLException {
         String updateSQL = "UPDATE estate SET "
                 + Estate.DB_COLUMN_CITY + " = ?, "

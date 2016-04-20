@@ -98,7 +98,7 @@ public class Main {
 					editEstate();
 					break;
 				case DELETE:
-					//deleteEstate();
+					deleteEstate();
 					break;
 				case BACK:
 					return;
@@ -140,7 +140,7 @@ public class Main {
 		readEstateProperties(estate);
 		int id = accessHelper.save(estate);
 
-		System.out.println("EstateAgent with ID " + id + " saved successfully.");
+		System.out.println("Estate with ID " + id + " saved successfully.");
 	}
 
 	public void editEstate() {
@@ -150,6 +150,14 @@ public class Main {
 		readEstateProperties(estate);
 		accessHelper.save(estate);
 	}
+
+    public void deleteEstate() {
+        int id = Integer.parseInt(FormUtil.readString("Estate ID to delete"));
+        accessHelper.deleteEstate(id);
+
+        System.out.println("Estate with ID " + id + " deleted successfully.");
+
+    }
 
 	/** small helper for reading stuff from cli and passing it to an agent*/
 	private void readEstateProperties(Estate estate) {
