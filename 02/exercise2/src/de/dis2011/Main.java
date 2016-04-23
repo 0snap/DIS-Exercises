@@ -4,6 +4,8 @@ package de.dis2011;
 import de.dis2011.data.DataAccessHelper;
 import de.dis2011.data.Estate;
 import de.dis2011.data.EstateAgent;
+import de.dis2011.data.Person;
+
 
 public class Main {
 
@@ -13,11 +15,13 @@ public class Main {
 
 	private static final int MENU_ESTATE_AGENTS = 1;
 	private static final int MENU_ESTATES = 2;
+    private static final int MENU_CONTRACT = 3;
 
 	// commands inside the menus:
 	private static final int NEW = 1;
 	private static final int EDIT = 2;
 	private static final int DELETE = 3;
+    private static final int LIST = 4;
 
 	private DataAccessHelper accessHelper;
 
@@ -38,6 +42,7 @@ public class Main {
 		Menu mainMenu = new Menu("Main menu");
         mainMenu.addEntry("EstateAgent Administration", MENU_ESTATE_AGENTS);
         mainMenu.addEntry("Estate Administration", MENU_ESTATES);
+		mainMenu.addEntry("Contract Management", MENU_CONTRACT);
 		mainMenu.addEntry("Quit!", QUIT);
 		
 		while(true) {
@@ -50,6 +55,9 @@ public class Main {
 				case MENU_ESTATES:
 					showEstateMenu();
 					break;
+                case MENU_CONTRACT:
+                    showContractMenu();
+                    break;
 				case QUIT:
 					return;
 			}
@@ -106,7 +114,73 @@ public class Main {
 		}
 	}
 
-	
+	private void showContractMenu() {
+        Menu contractMenu = new Menu("Contract management");
+        contractMenu.addEntry("List all Contracts", LIST);
+        contractMenu.addEntry("Sign Contract", NEW);
+        contractMenu.addEntry("Back to main menu", BACK);
+
+        while(true) {
+            int response = contractMenu.show();
+
+            switch(response) {
+                case NEW:
+                    newContract();
+                    break;
+                case LIST:
+                    showContractList();
+                    break;
+                case BACK:
+                    return;
+            }
+        }
+
+    }
+
+    private void showContractList(){
+        Menu contractList = new Menu("Contract list");
+        contractList.addEntry("Back to contract management", BACK);
+
+        List<Contract> contracts = accessHelper.getContractList();
+        for (int i = 0; i < contracts.length(); i++){
+            //change i+1 to id of Contract
+            contractList.addEntry("Edit " + contracts[i].getName, i+1);
+        }
+
+        while(true) {
+            int response = contractList.show();
+
+            switch(response) {
+                case BACK:
+                    return;
+                default:
+                    changeContract(response);
+            }
+        }
+    }
+
+    private void changeContract(int id){
+        Menu editContractMenu = new Menu("Edit Contract Nr" + id.toString());
+        editContractMenu.addEntry("Back to contract list", BACK);
+        List<Person> persons = accessHelper.getPersonList();
+
+        for (int i = 0; i < person.length(); i++){
+            //change i+1 to id of Person
+            editContractMenu.addEntry("Add " + persons[i].getName, i+1);
+        }
+
+        while(true) {
+            int response = editContractMenu.show();
+
+            switch(response) {
+                case BACK:
+                    return;
+                default:
+                    addPersonToContract(id, response);
+            }
+        }
+    }
+
 	public void newEstateAgent() {
 		EstateAgent agent = new EstateAgent();
 		readEstateAgentProperties(agent);
