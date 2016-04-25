@@ -35,79 +35,84 @@ public class Contract {
     private int interest;
 
 
-    public void set_id(int value){
+    public void set_id(int value) {
         this.id = value
     }
 
-    public int get_id(){
+    public int get_id() {
         return this.id
     }
 
-    public voiding set_contract_no(String value){
-        this.contract_no=value
+    public void set_contract_no(String value) {
+        this.contract_no = value
     }
-}
-    public String get_contract_no(){
+
+    public String get_contract_no() {
         return this.contract_no
     }
 
-    public voiding set_date(String value){
-        this.date=value
+    public void set_date(String value) {
+        this.date = value
     }
-    public String get_date(){
+
+    public String get_date() {
         return this.date
     }
 
-    public voiding set_place(String value){
-        this.place=value
+    public void set_place(String value) {
+        this.place = value
     }
-    public String get_place(){
+
+    public String get_place() {
         return this.place
     }
 
-    public voidlean set_is_tenancy(boolean value){
-        this.is_tenancy=value
+    public boolean set_is_tenancy(boolean value) {
+        this.is_tenancy = value
     }
-    public boolean get_is_tenancy(){
+
+    public boolean get_is_tenancy() {
         return this.is_tenancy
     }
 
-    public voiding set_start_date(String value){
-        this.start_date=value
+    public void set_start_date(String value) {
+        this.start_date = value
     }
-    public String get_start_date(){
+
+    public String get_start_date() {
         return this.start_date
     }
 
-    public void set_duration(int value){
-        this.duration=value
+    public void set_duration(int value) {
+        this.duration = value
     }
 
-    public int get_duration(){
+    public int get_duration() {
         return this.duration
     }
 
-    public void set_cost(int value){
-        this.cost=value
+    public void set_cost(int value) {
+        this.cost = value
     }
 
-    public int get_cost(){
+    public int get_cost() {
         return this.cost
     }
 
-    public voiding set_installments(String value){
-        this.installments=value
+    public void set_installments(String value) {
+        this.installments = value
     }
 
-    public String get_installments(){
+    public String get_installments() {
         return this.installments
     }
 
-    public void set_interest(int value){
-        this.interest=value
+    public void set_interest(int value) {
+        this.interest = value
     }
 
-    public int get_interest(){
+    public int get_interest() {
         return this.interest
     }
 
+}
