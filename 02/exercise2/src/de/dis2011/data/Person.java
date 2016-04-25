@@ -8,12 +8,23 @@ package de.dis2011.data;
 public class Person {
 
     public static final String DB_COLUMN_ID = "ID";
+    public static final String DB_COLUMN_FIRSTNAME = "FIRST_NAME";
     public static final String DB_COLUMN_NAME = "NAME";
     public static final String DB_COLUMN_ADDRESS = "ADDRESS";
 
     private int id = -1;
+    private String firstName;
     private String name;
     private String address;
+
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
     public int getId() {
         return id;

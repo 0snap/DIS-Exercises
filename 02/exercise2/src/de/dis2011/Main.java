@@ -1,10 +1,9 @@
 package de.dis2011;
 
 
-import de.dis2011.data.DataAccessHelper;
-import de.dis2011.data.Estate;
-import de.dis2011.data.EstateAgent;
-import de.dis2011.data.Person;
+import de.dis2011.data.*;
+
+import java.util.List;
 
 
 public class Main {
@@ -16,6 +15,7 @@ public class Main {
 	private static final int MENU_ESTATE_AGENTS = 1;
 	private static final int MENU_ESTATES = 2;
     private static final int MENU_CONTRACT = 3;
+	private static final int MENU_PERSON = 4;
 
 	// commands inside the menus:
 	private static final int NEW = 1;
@@ -43,6 +43,7 @@ public class Main {
         mainMenu.addEntry("EstateAgent Administration", MENU_ESTATE_AGENTS);
         mainMenu.addEntry("Estate Administration", MENU_ESTATES);
 		mainMenu.addEntry("Contract Management", MENU_CONTRACT);
+		mainMenu.addEntry("Person Management", MENU_PERSON);
 		mainMenu.addEntry("Quit!", QUIT);
 		
 		while(true) {
@@ -58,6 +59,9 @@ public class Main {
                 case MENU_CONTRACT:
                     showContractMenu();
                     break;
+				case MENU_PERSON:
+					showPersonMenu();
+					break;
 				case QUIT:
 					return;
 			}
@@ -125,10 +129,10 @@ public class Main {
 
             switch(response) {
                 case NEW:
-                    newContract();
+                    //newContract();
                     break;
                 case LIST:
-                    showContractList();
+//                    showContractList();
                     break;
                 case BACK:
                     return;
@@ -137,14 +141,34 @@ public class Main {
 
     }
 
-    private void showContractList(){
+	private void showPersonMenu() {
+
+		Menu personMenu = new Menu("Person Administration");
+		personMenu.addEntry("New Person", NEW);
+		personMenu.addEntry("Back to main menu", BACK);
+
+		while(true) {
+			int response = personMenu.show();
+
+			switch(response) {
+				case NEW:
+					newPerson();
+					break;
+				case BACK:
+					return;
+			}
+		}
+	}
+
+
+    /*private void showContractList(){
         Menu contractList = new Menu("Contract list");
         contractList.addEntry("Back to contract management", BACK);
 
         List<Contract> contracts = accessHelper.getContractList();
-        for (int i = 0; i < contracts.length(); i++){
+        for (int i = 0; i < contracts.size(); i++){
             //change i+1 to id of Contract
-            contractList.addEntry("Edit " + contracts[i].getName, i+1);
+            contractList.addEntry("Edit " + contracts.get(i).getName, i+1);
         }
 
         while(true) {
@@ -157,9 +181,9 @@ public class Main {
                     changeContract(response);
             }
         }
-    }
+    }*/
 
-    private void changeContract(int id){
+    /*private void changeContract(int id){
         Menu editContractMenu = new Menu("Edit Contract Nr" + id.toString());
         editContractMenu.addEntry("Back to contract list", BACK);
         List<Person> persons = accessHelper.getPersonList();
@@ -180,10 +204,13 @@ public class Main {
             }
         }
     }
-
-	public void newContract() {
+*/
+	/*public void newContract() {
         Contract contract = new Contract();
-    }
+		readContractProperties(contract);
+		int id = accessHelper.save(contract);
+		System.out.println("Contract with ID " + id + " saved successfully.");
+    }*/
 
 	public void newEstateAgent() {
 		EstateAgent agent = new EstateAgent();
@@ -223,6 +250,15 @@ public class Main {
 		agent.setPassword(FormUtil.readString("Passwort"));
 	}
 
+	public void newPerson() {
+		Person person = new Person();
+		person.setFirstName(FormUtil.readString("First name"));
+		person.setName(FormUtil.readString("Name"));
+		person.setAddress(FormUtil.readString("Adresse"));
+		int id = accessHelper.save(person);
+		System.out.println("Person with ID " + id + " saved successfully.");
+	}
+
 	public void newEstate() {
 		EstateAgent agent = loginEstateAgent();
 		if(agent == null) {
@@ -230,12 +266,12 @@ public class Main {
 		}
 		// looged in, create new estate of this agent
 		Estate estate = new Estate();
-		readEstateProperties(estate);
 		estate.setEstateAgent(agent.getId());
-		int id = accessHelper.save(estate);
+		int savedObjectId = readAndPersistEstate(estate);
 
-		System.out.println("Estate with ID " + id + " saved successfully.");
+		System.out.println("Estate with ID " + savedObjectId + " saved successfully.");
 	}
+
 
 	public void editEstate() {
 		EstateAgent agent = loginEstateAgent();
@@ -243,15 +279,15 @@ public class Main {
 			return;
 		}
 		// looged in, query estate of this agent
+		int type = readEstateType();
 		int id = Integer.parseInt(FormUtil.readString("Estate ID to edit"));
-		Estate estate = accessHelper.loadEstate(id);
+		Estate estate = accessHelper.loadEstate(id, type);
 		if(estate.getEstateAgent() != agent.getId()) {
 			// logged in agent does not own this estate, cannot edit!
 			System.out.println("You do not own this estate, you cannot edit it.");
 			return;
 		}
-		readEstateProperties(estate);
-		accessHelper.save(estate);
+		readAndPersistEstate(estate);
 	}
 
     public void deleteEstate() {
@@ -260,15 +296,16 @@ public class Main {
 			return;
 		}
 		// looged in, query estate of this agent
+		int type = readEstateType();
         int id = Integer.parseInt(FormUtil.readString("Estate ID to delete"));
 
-		Estate estate = accessHelper.loadEstate(id);
+		Estate estate = accessHelper.loadEstate(id, type);
 		if(estate.getEstateAgent() != agent.getId()) {
 			// logged in agent does not own this estate, cannot delete!
 			System.out.println("You do not own this estate, you cannot delete it.");
 			return;
 		}
-        accessHelper.deleteEstate(id);
+        accessHelper.deleteEstate(id, type);
 
         System.out.println("Estate with ID " + id + " deleted successfully.");
 
@@ -283,5 +320,50 @@ public class Main {
 		estate.setSquareArea(FormUtil.readString("Square area"));
 	}
 
+	private House readHouseProperties(Estate estate) {
+		House house = new House(estate);
+		house.setFloors(FormUtil.readInt("Floors"));
+		house.setPrice(FormUtil.readInt("Price"));
+		house.setGarden(FormUtil.readInt("Garden (0=no, 1=yes)"));
+		house.setPerson(FormUtil.readInt("Person (Buyer) ID"));
+		house.setPurchaseContract(FormUtil.readInt("Purchase Contract ID"));
+		return house;
+	}
+
+	private Apartment readApartmentProperties(Estate estate) {
+		Apartment apartment = new Apartment(estate);
+		apartment.setFloor(FormUtil.readInt("Floor"));
+		apartment.setRent(FormUtil.readInt("Rent"));
+		apartment.setBalcony(FormUtil.readInt("Balcony (0=no, 1=yes)"));
+		apartment.setBuiltInKitchen(FormUtil.readInt("Built in kitchen (0=no, 1=yes)"));
+		apartment.setPerson(FormUtil.readInt("Person (Buyer) ID"));
+		apartment.setTenancyContract(FormUtil.readInt("Tenancy Contract ID"));
+		return apartment;
+	}
+
+	private int readEstateType() {
+		return FormUtil.readInt("Type (0=house / 1=apartment / 2=none of them");
+	}
+
+	private int readAndPersistEstate(Estate estate) {
+		int savedObjectId = -1;
+		int type = readEstateType();
+		readEstateProperties(estate);
+		switch(type) {
+			case 0:
+				House house = readHouseProperties(estate);
+				savedObjectId = accessHelper.save(house);
+				break;
+			case 1:
+				Apartment apartment = readApartmentProperties(estate);
+				savedObjectId = accessHelper.save(apartment);
+				break;
+			case 2:
+				savedObjectId = accessHelper.save(estate);
+				break;
+			default: break;
+		}
+		return savedObjectId;
+	}
 
 }

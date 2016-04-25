@@ -132,32 +132,28 @@ public class DataAccessHelper {
         return estate.getId();
     }
 
-    /** Load one row from db, parse to estate object */
-    public Estate loadEstate(int id) {
+    /** Load one row from db, parse to estate object. result depends on type
+     * (0=house, 1=apartment, 2=none, plain estate)
+     */
+    public Estate loadEstate(int id, int type) {
         try {
             Connection con = DB2ConnectionManager.getInstance().getConnection();
-
-            String selectSQL = "SELECT * FROM estate WHERE " + Estate.DB_COLUMN_ID + " = ?";
+            String tableName = getEstateTableNameForType(type);
+            String selectSQL = "SELECT * FROM " + tableName + " WHERE " + Estate.DB_COLUMN_ID + " = ?";
             PreparedStatement query = con.prepareStatement(selectSQL);
             query.setInt(1, id);
 
             ResultSet resultSet = query.executeQuery();
             if (resultSet.next()) {
-                Estate estate = new Estate();
+                Estate estate = extractEstate(resultSet, type);
                 estate.setId(id);
-                estate.setCity(resultSet.getString(Estate.DB_COLUMN_CITY));
-                estate.setPostalCode(resultSet.getString(Estate.DB_COLUMN_POSTAL_CODE));
-                estate.setStreet(resultSet.getString(Estate.DB_COLUMN_STREET));
-                estate.setStreetNumber(resultSet.getInt(Estate.DB_COLUMN_STREET_NUMBER));
-                estate.setSquareArea(resultSet.getString(Estate.DB_COLUMN_SQUARE_AREA));
-                estate.setEstateAgent(resultSet.getInt(Estate.DB_COLUMN_ESTATE_AGENT));
 
                 resultSet.close();
                 query.close();
                 return estate;
             }
             else {
-                System.err.println("Could not find an estate agent with that ID.");
+                System.err.println("Could not find an estate with that ID.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -165,11 +161,41 @@ public class DataAccessHelper {
         return null;
     }
 
-    public void deleteEstate(int id){
+    private Estate extractEstate(ResultSet resultSet, int type) throws SQLException {
+        Estate estate = new Estate();
+        estate.setCity(resultSet.getString(Estate.DB_COLUMN_CITY));
+        estate.setPostalCode(resultSet.getString(Estate.DB_COLUMN_POSTAL_CODE));
+        estate.setStreet(resultSet.getString(Estate.DB_COLUMN_STREET));
+        estate.setStreetNumber(resultSet.getInt(Estate.DB_COLUMN_STREET_NUMBER));
+        estate.setSquareArea(resultSet.getString(Estate.DB_COLUMN_SQUARE_AREA));
+        estate.setEstateAgent(resultSet.getInt(Estate.DB_COLUMN_ESTATE_AGENT));
+        if(type == 0) {
+            House house = new House(estate);
+            house.setFloors(resultSet.getInt(House.DB_COLUMN_FLOORS));
+            house.setPrice(resultSet.getDouble(House.DB_COLUMN_PRICE));
+            house.setGarden(resultSet.getInt(House.DB_COLUMN_GARDEN));
+            house.setPurchaseContract(resultSet.getInt(House.DB_COLUMN_PURCHASE_CONTRACT));
+            house.setPerson(resultSet.getInt(House.DB_COLUMN_PERSON));
+            return house;
+        }if(type == 0) {
+            Apartment apartment = new Apartment(estate);
+            apartment.setFloor(resultSet.getInt(Apartment.DB_COLUMN_FLOOR));
+            apartment.setRent(resultSet.getDouble(Apartment.DB_COLUMN_RENT));
+            apartment.setRooms(resultSet.getInt(Apartment.DB_COLUMN_ROOMS));
+            apartment.setBalcony(resultSet.getInt(Apartment.DB_COLUMN_BALCONY));
+            apartment.setBuiltInKitchen(resultSet.getInt(Apartment.DB_COLUMN_BUILT_IN_KITCHEN));
+            apartment.setTenancyContract(resultSet.getInt(Apartment.DB_COLUMN_TENANCY_CONTRACT));
+            apartment.setPerson(resultSet.getInt(Apartment.DB_COLUMN_PERSON));
+            return apartment;
+        }
+        return estate;
+    }
+
+    public void deleteEstate(int id, int type){
         try {
             Connection con = DB2ConnectionManager.getInstance().getConnection();
-
-            String deleteSQL = "DELETE FROM estate WHERE " + Estate.DB_COLUMN_ID + " = ?";
+            String tableName = getEstateTableNameForType(type);
+            String deleteSQL = "DELETE FROM " + tableName + " WHERE " + Estate.DB_COLUMN_ID + " = ?";
             PreparedStatement query = con.prepareStatement(deleteSQL);
             query.setInt(1, id);
             query.executeUpdate();
@@ -198,14 +224,46 @@ public class DataAccessHelper {
     }
 
     private void createEstate(Estate estate, Connection con) throws SQLException {
-        String insertSQL = "INSERT INTO estate("
-                + Estate.DB_COLUMN_CITY + ", "
-                + Estate.DB_COLUMN_POSTAL_CODE + ", "
-                + Estate.DB_COLUMN_STREET + ", "
-                + Estate.DB_COLUMN_STREET_NUMBER + ", "
-                + Estate.DB_COLUMN_SQUARE_AREA + ", "
-                + Estate.DB_COLUMN_ESTATE_AGENT + ") VALUES (?, ?, ?, ?, ?, ?)";
-
+        String insertSQL;
+        if(estate instanceof House) {
+            insertSQL = "INSERT INTO house("
+                    + Estate.DB_COLUMN_CITY + ", "
+                    + Estate.DB_COLUMN_POSTAL_CODE + ", "
+                    + Estate.DB_COLUMN_STREET + ", "
+                    + Estate.DB_COLUMN_STREET_NUMBER + ", "
+                    + Estate.DB_COLUMN_SQUARE_AREA + ", "
+                    + Estate.DB_COLUMN_ESTATE_AGENT + ", "
+                    + House.DB_COLUMN_FLOORS + ", "
+                    + House.DB_COLUMN_PRICE + ", "
+                    + House.DB_COLUMN_GARDEN + ", "
+                    + House.DB_COLUMN_PURCHASE_CONTRACT + ", "
+                    + House.DB_COLUMN_PERSON + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        }
+        else if(estate instanceof Apartment) {
+            insertSQL = "INSERT INTO house("
+                    + Estate.DB_COLUMN_CITY + ", "
+                    + Estate.DB_COLUMN_POSTAL_CODE + ", "
+                    + Estate.DB_COLUMN_STREET + ", "
+                    + Estate.DB_COLUMN_STREET_NUMBER + ", "
+                    + Estate.DB_COLUMN_SQUARE_AREA + ", "
+                    + Estate.DB_COLUMN_ESTATE_AGENT + ", "
+                    + Apartment.DB_COLUMN_FLOOR + ", "
+                    + Apartment.DB_COLUMN_RENT + ", "
+                    + Apartment.DB_COLUMN_ROOMS + ", "
+                    + Apartment.DB_COLUMN_BALCONY + ", "
+                    + Apartment.DB_COLUMN_BUILT_IN_KITCHEN + ", "
+                    + Apartment.DB_COLUMN_TENANCY_CONTRACT + ", "
+                    + Apartment.DB_COLUMN_PERSON + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        }
+        else {
+            insertSQL = "INSERT INTO estate("
+                    + Estate.DB_COLUMN_CITY + ", "
+                    + Estate.DB_COLUMN_POSTAL_CODE + ", "
+                    + Estate.DB_COLUMN_STREET + ", "
+                    + Estate.DB_COLUMN_STREET_NUMBER + ", "
+                    + Estate.DB_COLUMN_SQUARE_AREA + ", "
+                    + Estate.DB_COLUMN_ESTATE_AGENT + ") VALUES (?, ?, ?, ?, ?, ?)";
+        }
         PreparedStatement query = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
         persistEstate(estate, query);
 
@@ -225,7 +283,38 @@ public class DataAccessHelper {
         query.setInt(4, estate.getStreetNumber());
         query.setString(5, estate.getSquareArea());
         query.setInt(6, estate.getEstateAgent());
+        if(estate instanceof House) {
+            query.setInt(7, ((House) estate).getFloors());
+            query.setDouble(8, ((House) estate).getPrice());
+            query.setInt(9, ((House) estate).getGarden());
+            query.setInt(10, ((House) estate).getPurchaseContract());
+            query.setInt(11, ((House) estate).getPerson());
+        }
+        else if(estate instanceof Apartment) {
+            query.setInt(7, ((Apartment) estate).getFloor());
+            query.setDouble(8, ((Apartment) estate).getRent());
+            query.setInt(9, ((Apartment) estate).getRooms());
+            query.setInt(10, ((Apartment) estate).getBalcony());
+            query.setInt(11, ((Apartment) estate).getBuiltInKitchen());
+            query.setInt(12, ((Apartment) estate).getTenancyContract());
+            query.setInt(13, ((Apartment) estate).getPerson());
+        }
         query.executeUpdate();
+    }
+
+    private String getEstateTableNameForType(int type) {
+        String tableName = "estate";
+        switch (type) {
+            case 0:
+                tableName = "house";
+                break;
+            case 1:
+                tableName = "apartment";
+                break;
+            default:
+                break;
+        }
+        return tableName;
     }
 
     /*
@@ -235,26 +324,26 @@ public class DataAccessHelper {
     /**
      * Persist the given contract object to db. An ID will be automatically
      * fetched (if not already present) and set. Returns the ID of the contract.
-     */
+     *//*
     public int save(Contract contract) {
         Connection con = DB2ConnectionManager.getInstance().getConnection();
 
         try {
             // new, create
-            if (contract.getId() == -1) {
-                createEstate(contract, con);
+            if (contract.get_id() == -1) {
+                createContract(contract, con);
             }
             // existing, update
             else {
-                updateEstate(contract, con);
+                updateContract(contract, con);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return contract.getId();
+        return contract.get_id();
     }
 
-    /** Load one row from db, parse to contract object */
+    *//** Load one row from db, parse to contract object *//*
     public Contract loadContract(int id) {
         try {
             Connection con = DB2ConnectionManager.getInstance().getConnection();
@@ -265,22 +354,23 @@ public class DataAccessHelper {
 
             ResultSet resultSet = query.executeQuery();
             if (resultSet.next()) {
-                Contract contract = new contract();
+                Contract contract = new Contract();
                 contract.set_id(id);
-                contract.set_contract_no(resultSet.getString(Contact.DB_COLUMN_CONTRACT_NO));
+                contract.set_id(resultSet.getInt(Contract.DB_COLUMN_ID));
                 contract.set_date(resultSet.getString(Contract.DB_COLUMN_DATE));
                 contract.set_place(resultSet.getString(Contract.DB_COLUMN_PLACE));
-                if(contract.set_is_tenancy(resultSet.getInt(Contract.DB_COLUMN_IS_TENANCY))){
+                contract.set_is_tenancy(resultSet.getBoolean(Contract.DB_COLUMN_IS_TENANCY));
+                if(contract.get_is_tenancy()){
                     contract.set_start_date(resultSet.getString(Contract.DB_COLUMN_START_DATE));
-                    contract.set_duration(resultSet.getString(Contract.DB_COLUMN_DURATION));
-                    contract.set_cost(resultSet.getString(Contract.DB_COLUMN_COST));
+                    contract.set_duration(resultSet.getInt(Contract.DB_COLUMN_DURATION));
+                    contract.set_cost(resultSet.getInt(Contract.DB_COLUMN_COST));
                 }else{
                     contract.set_installments(resultSet.getString(Contract.DB_COLUMN_INSTALLMENTS));
-                    contract.set_interest(resultSet.getString(Contract.DB_COLUMN_INTEREST));
+                    contract.set_interest(resultSet.getInt(Contract.DB_COLUMN_INTEREST));
                 }
                 resultSet.close();
                 query.close();
-                return estate;
+                return contract;
             }
             else {
                 System.err.println("Could not find a contract with that ID.");
@@ -308,7 +398,7 @@ public class DataAccessHelper {
 
     private void updateContract(Contract contract, Connection con) throws SQLException {
         String updateSQL = "UPDATE contract SET "
-                + Contract.DB_COLUMN_CONTRACT_NO + " = ?, "
+                + Contract.DB_COLUMN_ID + " = ?, "
                 + Contract.DB_COLUMN_DATE + " = ?, "
                 + Contract.DB_COLUMN_PLACE + " = ?, "
                 + Contract.DB_COLUMN_IS_TENANCY + " = ?, "
@@ -321,7 +411,7 @@ public class DataAccessHelper {
 
         PreparedStatement query = con.prepareStatement(updateSQL);
 
-        query.setInt(7, contract.getId()); // set already existing id to complete query, then persist
+        query.setInt(7, contract.get_id()); // set already existing id to complete query, then persist
         persistContract(contract, query);
 
         query.close();
@@ -329,7 +419,7 @@ public class DataAccessHelper {
 
     private void createContract(Contract contract, Connection con) throws SQLException {
         String insertSQL = "INSERT INTO contract("
-                + Contract.DB_COLUMN_CONTRACT_NO + ", "
+                + Contract.DB_COLUMN_ID + ", "
                 + Contract.DB_COLUMN_DATE + ", "
                 + Contract.DB_COLUMN_PLACE + ", "
                 + Contract.DB_COLUMN_IS_TENANCY + ", "
@@ -345,7 +435,7 @@ public class DataAccessHelper {
 
         ResultSet resultSet = query.getGeneratedKeys();
         if (resultSet.next()) {
-            contract.setId(resultSet.getInt(1));
+            contract.set_id(resultSet.getInt(1));
         }
 
         resultSet.close();
@@ -353,7 +443,7 @@ public class DataAccessHelper {
     }
 
     private void persistContract(Contract contract, PreparedStatement query) throws SQLException {
-        query.setInt(1, contract.get_contract_no());
+        query.setInt(1, contract.get_id());
         query.setString(2, contract.get_date());
         query.setString(3, contract.get_place());
         query.setBoolean(4, contract.get_is_tenancy());
@@ -366,7 +456,7 @@ public class DataAccessHelper {
 
         query.executeUpdate();
     }
-
+*/
     /*
      * Person accesses:
      */
@@ -439,12 +529,13 @@ public class DataAccessHelper {
 
     private void updatePerson(Person person, Connection con) throws SQLException {
         String updateSQL = "UPDATE person SET "
+                + Person.DB_COLUMN_FIRSTNAME + " = ?, "
                 + Person.DB_COLUMN_NAME + " = ?, "
                 + Person.DB_COLUMN_ADDRESS + " = ? WHERE "
                 + Person.DB_COLUMN_ID + " = ?";
         PreparedStatement query = con.prepareStatement(updateSQL);
 
-        query.setInt(7, person.getId()); // set already existing id to complete query, then persist
+        query.setInt(4, person.getId()); // set already existing id to complete query, then persist
         persistPerson(person, query);
 
         query.close();
@@ -452,10 +543,9 @@ public class DataAccessHelper {
 
     private void createPerson(Person person, Connection con) throws SQLException {
         String insertSQL = "INSERT INTO person("
+                + Person.DB_COLUMN_FIRSTNAME + " , "
                 + Person.DB_COLUMN_NAME + " , "
-                + Person.DB_COLUMN_ADDRESS + " , "
-                + Person.DB_COLUMN_ID + " , "
-                +   ") VALUES (?, ?, ?)";
+                + Person.DB_COLUMN_ADDRESS + ") VALUES (?, ?, ?)";
 
         PreparedStatement query = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
         persistPerson(person, query);
@@ -470,8 +560,9 @@ public class DataAccessHelper {
     }
 
     private void persistPerson(Person person, PreparedStatement query) throws SQLException {
-        query.setString(1, person.getName());
-        query.setString(2, person.getAddress());
+        query.setString(1, person.getFirstName());
+        query.setString(2, person.getName());
+        query.setString(3, person.getAddress());
         query.executeUpdate();
     }
 
