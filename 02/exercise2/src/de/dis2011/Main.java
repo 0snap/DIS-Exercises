@@ -181,6 +181,10 @@ public class Main {
         }
     }
 
+	public void newContract() {
+        Contract contract = new Contract();
+    }
+
 	public void newEstateAgent() {
 		EstateAgent agent = new EstateAgent();
 		readEstateAgentProperties(agent);
