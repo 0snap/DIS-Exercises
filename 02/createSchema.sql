@@ -19,8 +19,8 @@ create table vsisp09.person(ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
 -- contract and subtypes
 create table vsisp09.contract (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, DATE DATE, PLACE VARCHAR(50));
-create table vsisp09.tenancy_contract (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, DATE DATE, PLACE VARCHAR(50), START_DATE DATE, DURATION INTEGER, ADDITIONAL_COSTS DOUBLE);
-create table vsisp09.purchase_contract (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, DATE DATE, PLACE VARCHAR(50), NUMBER_OF_INSTALLMENTS INTEGER, INTEREST_RATE INTEGER);
+create table vsisp09.tenancy_contract (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, DATE DATE, PLACE VARCHAR(50), START_DATE DATE, DURATION INTEGER, ADDITIONAL_COSTS DOUBLE, RENTER INTEGER, OWNER INTEGER);
+create table vsisp09.purchase_contract (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, DATE DATE, PLACE VARCHAR(50), NUMBER_OF_INSTALLMENTS INTEGER, INTEREST_RATE INTEGER, SELLER INTEGER, BUYER INTEGER);
 
 
 
@@ -31,3 +31,8 @@ alter table vsisp09.apartment add foreign key (PERSON) references vsisp09.person
 
 alter table vsisp09.house add foreign key (PURCHASE_CONTRACT) references vsisp09.purchase_contract(ID) on delete restrict; 
 alter table vsisp09.house add foreign key (PERSON) references vsisp09.person(ID) on delete restrict;
+
+alter table vsisp09.tenancy_contract add foreign key (RENTER) references vsisp09.person(ID) on delete restrict; 
+alter table vsisp09.tenancy_contract add foreign key (OWNER) references vsisp09.person(ID) on delete restrict; 
+alter table vsisp09.purchase_contract add foreign key (SELLER) references vsisp09.person(ID) on delete restrict; 
+alter table vsisp09.purchase_contract add foreign key (BUYER) references vsisp09.person(ID) on delete restrict; 

@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="exercise2:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/exercise2_jar</output-path>
+    <root id="archive" name="exercise2.jar">
+      <element id="module-output" name="exercise2" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../01/db2jcc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../01/db2jcc_license_cu.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/db2.properties" />
+    </root>
+  </artifact>
+</component>

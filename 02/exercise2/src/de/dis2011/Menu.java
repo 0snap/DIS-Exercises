@@ -44,6 +44,11 @@ public class Menu {
 		this.labels.add(label);
 		this.returnValues.add(new Integer(returnValue));
 	}
+
+	public void addLabel(String label) {
+		this.labels.add(label);
+		this.returnValues.add(0);
+	}
 	
 	/**
 	 * Zeigt das Menü an

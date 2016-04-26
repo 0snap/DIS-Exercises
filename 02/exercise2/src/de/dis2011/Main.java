@@ -3,6 +3,7 @@ package de.dis2011;
 
 import de.dis2011.data.*;
 
+import java.sql.Date;
 import java.util.List;
 
 
@@ -129,10 +130,10 @@ public class Main {
 
             switch(response) {
                 case NEW:
-                    //newContract();
+                    newContract();
                     break;
                 case LIST:
-//                    showContractList();
+                    showContractList();
                     break;
                 case BACK:
                     return;
@@ -161,56 +162,23 @@ public class Main {
 	}
 
 
-    /*private void showContractList(){
+    private void showContractList(){
         Menu contractList = new Menu("Contract list");
         contractList.addEntry("Back to contract management", BACK);
 
         List<Contract> contracts = accessHelper.getContractList();
-        for (int i = 0; i < contracts.size(); i++){
+        for (Contract contract: contracts){
             //change i+1 to id of Contract
-            contractList.addEntry("Edit " + contracts.get(i).getName, i+1);
+            contractList.addLabel(contract.toString());
         }
-
-        while(true) {
-            int response = contractList.show();
-
-            switch(response) {
-                case BACK:
-                    return;
-                default:
-                    changeContract(response);
-            }
-        }
-    }*/
-
-    /*private void changeContract(int id){
-        Menu editContractMenu = new Menu("Edit Contract Nr" + id.toString());
-        editContractMenu.addEntry("Back to contract list", BACK);
-        List<Person> persons = accessHelper.getPersonList();
-
-        for (int i = 0; i < person.length(); i++){
-            //change i+1 to id of Person
-            editContractMenu.addEntry("Add " + persons[i].getName, i+1);
-        }
-
-        while(true) {
-            int response = editContractMenu.show();
-
-            switch(response) {
-                case BACK:
-                    return;
-                default:
-                    addPersonToContract(id, response);
-            }
-        }
+		contractList.show();
     }
-*/
-	/*public void newContract() {
-        Contract contract = new Contract();
-		readContractProperties(contract);
+
+	public void newContract() {
+        Contract contract = readContractProperties();
 		int id = accessHelper.save(contract);
 		System.out.println("Contract with ID " + id + " saved successfully.");
-    }*/
+    }
 
 	public void newEstateAgent() {
 		EstateAgent agent = new EstateAgent();
@@ -267,7 +235,8 @@ public class Main {
 		// looged in, create new estate of this agent
 		Estate estate = new Estate();
 		estate.setEstateAgent(agent.getId());
-		int savedObjectId = readAndPersistEstate(estate);
+		int type = readEstateType();
+		int savedObjectId = readAndPersistEstate(estate, type);
 
 		System.out.println("Estate with ID " + savedObjectId + " saved successfully.");
 	}
@@ -287,7 +256,7 @@ public class Main {
 			System.out.println("You do not own this estate, you cannot edit it.");
 			return;
 		}
-		readAndPersistEstate(estate);
+		readAndPersistEstate(estate, type);
 	}
 
     public void deleteEstate() {
@@ -341,13 +310,36 @@ public class Main {
 		return apartment;
 	}
 
-	private int readEstateType() {
-		return FormUtil.readInt("Type (0=house / 1=apartment / 2=none of them");
+	private Contract readContractProperties() {
+		Contract contract = new Contract();
+		contract.setDate(new Date(new java.util.Date().getTime()));
+		contract.setPlace(FormUtil.readString("Place"));
+		boolean isPurchase = FormUtil.readInt("Contract type (0=purchase, 1=tenancy)") == 0;
+		if(isPurchase) {
+			PurchaseContract purchaseContract = new PurchaseContract(contract);
+			purchaseContract.setInterest(FormUtil.readInt("Number of interested people"));
+			purchaseContract.setInstallments(FormUtil.readInt("Number of installments"));
+			purchaseContract.setSeller(FormUtil.readInt("Peron ID - Seller"));
+			purchaseContract.setBuyer(FormUtil.readInt("Peron ID - Buyer"));
+			return purchaseContract;
+		}
+		else {
+			TenancyContract tenancyContract = new TenancyContract(contract);
+			tenancyContract.setAdditionalCost(FormUtil.readInt("Additional Costs"));
+			tenancyContract.setDuration(FormUtil.readInt("Duration of rent (months)"));
+			tenancyContract.setStartDate(new Date(new java.util.Date().getTime()));
+			tenancyContract.setOwner(FormUtil.readInt("Peron ID - Owner"));
+			tenancyContract.setRenter(FormUtil.readInt("Peron ID - Renter"));
+			return tenancyContract;
+		}
 	}
 
-	private int readAndPersistEstate(Estate estate) {
+	private int readEstateType() {
+		return FormUtil.readInt("Type (0=house, 1=apartment, 2=none of them)");
+	}
+
+	private int readAndPersistEstate(Estate estate, int type) {
 		int savedObjectId = -1;
-		int type = readEstateType();
 		readEstateProperties(estate);
 		switch(type) {
 			case 0:

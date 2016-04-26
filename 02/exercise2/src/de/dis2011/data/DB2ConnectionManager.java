@@ -30,30 +30,17 @@ public class DB2ConnectionManager {
 	 */
 	private DB2ConnectionManager() {
 		try {
-			// Holen der Einstellungen aus der db2.properties Datei
-			Properties properties = new Properties();
-			URL url = ClassLoader.getSystemResource("db2.properties");
-			FileInputStream stream = new FileInputStream(new File(url.toURI()));
-			properties.load(stream);
-			stream.close();
-
-			String jdbcUser = properties.getProperty("jdbc_user");
-			String jdbcPass = properties.getProperty("jdbc_pass");
-			String jdbcUrl = properties.getProperty("jdbc_url");
+			String jdbcUser = "vsisp09";
+			String jdbcPass = "zd72OoKT";
+			String jdbcUrl = "jdbc:db2://vsisls4.informatik.uni-hamburg.de:50001/VSISP";
 
 			// Verbindung zur DB2 herstellen
 			Class.forName("com.ibm.db2.jcc.DB2Driver");
 			_con = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPass);
 
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 

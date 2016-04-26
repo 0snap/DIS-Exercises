@@ -1,6 +1,8 @@
 package de.dis2011.data;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Normally one would have a data-access-object (DAO) per entity, but...
@@ -207,17 +209,57 @@ public class DataAccessHelper {
     }
 
     private void updateEstate(Estate estate, Connection con) throws SQLException {
-        String updateSQL = "UPDATE estate SET "
-                + Estate.DB_COLUMN_CITY + " = ?, "
-                + Estate.DB_COLUMN_POSTAL_CODE + " = ?, "
-                + Estate.DB_COLUMN_STREET + " = ?, "
-                + Estate.DB_COLUMN_STREET_NUMBER + " = ?, "
-                + Estate.DB_COLUMN_SQUARE_AREA + " = ?, "
-                + Estate.DB_COLUMN_ESTATE_AGENT + " = ? WHERE "
-                + Estate.DB_COLUMN_ID + " = ?";
-        PreparedStatement query = con.prepareStatement(updateSQL);
+        String updateSQL;
+        PreparedStatement query = null;
+        if(estate instanceof House) {
+            updateSQL = "UPDATE house SET "
+                    + Estate.DB_COLUMN_CITY + " = ?, "
+                    + Estate.DB_COLUMN_POSTAL_CODE + " = ?, "
+                    + Estate.DB_COLUMN_STREET + " = ?, "
+                    + Estate.DB_COLUMN_STREET_NUMBER + " = ?, "
+                    + Estate.DB_COLUMN_SQUARE_AREA + " = ?, "
+                    + Estate.DB_COLUMN_ESTATE_AGENT + " = ?, "
+                    + House.DB_COLUMN_FLOORS + " = ?, "
+                    + House.DB_COLUMN_PRICE + " = ?, "
+                    + House.DB_COLUMN_GARDEN + " = ?, "
+                    + House.DB_COLUMN_PURCHASE_CONTRACT + " = ?, "
+                    + House.DB_COLUMN_PERSON + " = ? WHERE "
+                    + Estate.DB_COLUMN_ID + " = ?";
+            query = con.prepareStatement(updateSQL);
+            query.setInt(12, estate.getId());
+        }
+        else if(estate instanceof Apartment) {
+            updateSQL = "UPDATE apartment SET "
+                    + Estate.DB_COLUMN_CITY + " = ?, "
+                    + Estate.DB_COLUMN_POSTAL_CODE + " = ?, "
+                    + Estate.DB_COLUMN_STREET + " = ?, "
+                    + Estate.DB_COLUMN_STREET_NUMBER + " = ?, "
+                    + Estate.DB_COLUMN_SQUARE_AREA + " = ?, "
+                    + Estate.DB_COLUMN_ESTATE_AGENT + " = ?, "
+                    + Apartment.DB_COLUMN_FLOOR + " = ?, "
+                    + Apartment.DB_COLUMN_RENT + " = ?, "
+                    + Apartment.DB_COLUMN_ROOMS + " = ?, "
+                    + Apartment.DB_COLUMN_BALCONY + " = ?, "
+                    + Apartment.DB_COLUMN_BUILT_IN_KITCHEN + " = ?, "
+                    + Apartment.DB_COLUMN_TENANCY_CONTRACT + " = ?, "
+                    + Apartment.DB_COLUMN_PERSON + " = ? WHERE "
+                    + Estate.DB_COLUMN_ID + " = ?";
+            query = con.prepareStatement(updateSQL);
+            query.setInt(14, estate.getId());
+        }
+        else {
+            updateSQL = "UPDATE estate SET "
+                    + Estate.DB_COLUMN_CITY + " = ?, "
+                    + Estate.DB_COLUMN_POSTAL_CODE + " = ?, "
+                    + Estate.DB_COLUMN_STREET + " = ?, "
+                    + Estate.DB_COLUMN_STREET_NUMBER + " = ?, "
+                    + Estate.DB_COLUMN_SQUARE_AREA + " = ?, "
+                    + Estate.DB_COLUMN_ESTATE_AGENT + " = ? WHERE "
+                    + Estate.DB_COLUMN_ID + " = ?";
+            query = con.prepareStatement(updateSQL);
+            query.setInt(7, estate.getId());
+        }
 
-        query.setInt(7, estate.getId()); // set already existing id to complete query, then persist
         persistEstate(estate, query);
 
         query.close();
@@ -240,7 +282,7 @@ public class DataAccessHelper {
                     + House.DB_COLUMN_PERSON + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         }
         else if(estate instanceof Apartment) {
-            insertSQL = "INSERT INTO house("
+            insertSQL = "INSERT INTO apartment("
                     + Estate.DB_COLUMN_CITY + ", "
                     + Estate.DB_COLUMN_POSTAL_CODE + ", "
                     + Estate.DB_COLUMN_STREET + ", "
@@ -324,139 +366,119 @@ public class DataAccessHelper {
     /**
      * Persist the given contract object to db. An ID will be automatically
      * fetched (if not already present) and set. Returns the ID of the contract.
-     *//*
+     */
     public int save(Contract contract) {
         Connection con = DB2ConnectionManager.getInstance().getConnection();
 
         try {
             // new, create
-            if (contract.get_id() == -1) {
+            if (contract.getId() == -1) {
                 createContract(contract, con);
             }
-            // existing, update
-            else {
-                updateContract(contract, con);
-            }
+            // existing, unimplemented
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return contract.get_id();
-    }
-
-    *//** Load one row from db, parse to contract object *//*
-    public Contract loadContract(int id) {
-        try {
-            Connection con = DB2ConnectionManager.getInstance().getConnection();
-
-            String selectSQL = "SELECT * FROM estate WHERE " + Contract.DB_COLUMN_ID + " = ?";
-            PreparedStatement query = con.prepareStatement(selectSQL);
-            query.setInt(1, id);
-
-            ResultSet resultSet = query.executeQuery();
-            if (resultSet.next()) {
-                Contract contract = new Contract();
-                contract.set_id(id);
-                contract.set_id(resultSet.getInt(Contract.DB_COLUMN_ID));
-                contract.set_date(resultSet.getString(Contract.DB_COLUMN_DATE));
-                contract.set_place(resultSet.getString(Contract.DB_COLUMN_PLACE));
-                contract.set_is_tenancy(resultSet.getBoolean(Contract.DB_COLUMN_IS_TENANCY));
-                if(contract.get_is_tenancy()){
-                    contract.set_start_date(resultSet.getString(Contract.DB_COLUMN_START_DATE));
-                    contract.set_duration(resultSet.getInt(Contract.DB_COLUMN_DURATION));
-                    contract.set_cost(resultSet.getInt(Contract.DB_COLUMN_COST));
-                }else{
-                    contract.set_installments(resultSet.getString(Contract.DB_COLUMN_INSTALLMENTS));
-                    contract.set_interest(resultSet.getInt(Contract.DB_COLUMN_INTEREST));
-                }
-                resultSet.close();
-                query.close();
-                return contract;
-            }
-            else {
-                System.err.println("Could not find a contract with that ID.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void deleteContract(int id){
-        try {
-            Connection con = DB2ConnectionManager.getInstance().getConnection();
-
-            String deleteSQL = "DELETE FROM estate WHERE " + Contract.DB_COLUMN_ID + " = ?";
-            PreparedStatement query = con.prepareStatement(deleteSQL);
-            query.setInt(1, id);
-            query.executeUpdate();
-            query.close();
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void updateContract(Contract contract, Connection con) throws SQLException {
-        String updateSQL = "UPDATE contract SET "
-                + Contract.DB_COLUMN_ID + " = ?, "
-                + Contract.DB_COLUMN_DATE + " = ?, "
-                + Contract.DB_COLUMN_PLACE + " = ?, "
-                + Contract.DB_COLUMN_IS_TENANCY + " = ?, "
-                + Contract.DB_COLUMN_START_DATE + " = ?, "
-                + Contract.DB_COLUMN_DURATION + " = ?, "
-                + Contract.DB_COLUMN_COST + " = ?, "
-                + Contract.DB_COLUMN_INSTALLMENTS + " = ?, "
-                + Contract.DB_COLUMN_INTEREST + " = ? WHERE "
-                + Contract.DB_COLUMN_ID + " = ?";
-
-        PreparedStatement query = con.prepareStatement(updateSQL);
-
-        query.setInt(7, contract.get_id()); // set already existing id to complete query, then persist
-        persistContract(contract, query);
-
-        query.close();
+        return contract.getId();
     }
 
     private void createContract(Contract contract, Connection con) throws SQLException {
-        String insertSQL = "INSERT INTO contract("
-                + Contract.DB_COLUMN_ID + ", "
+        String insertSQL = "";
+        PreparedStatement query = null;
+        if(contract instanceof PurchaseContract) {
+            insertSQL = "INSERT INTO purchase_contract("
                 + Contract.DB_COLUMN_DATE + ", "
                 + Contract.DB_COLUMN_PLACE + ", "
-                + Contract.DB_COLUMN_IS_TENANCY + ", "
-                + Contract.DB_COLUMN_START_DATE + ", "
-                + Contract.DB_COLUMN_DURATION + ", "
-                + Contract.DB_COLUMN_COST + ", "
-                + Contract.DB_COLUMN_INSTALLMENTS + ", "
-                + Contract.DB_COLUMN_INTEREST + ") VALUES (?,?,?,?,?,?,?,?,?)";
+                + PurchaseContract.DB_COLUMN_INSTALLMENTS + ", "
+                + PurchaseContract.DB_COLUMN_INTEREST + ", "
+                + PurchaseContract.DB_COLUMN_SELLER + ", "
+                + PurchaseContract.DB_COLUMN_BUYER + ") VALUES (?,?,?,?,?,?)";
+            query = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
+            query.setDate(1, contract.getDate());
+            query.setString(2, contract.getPlace());
+            query.setInt(3, ((PurchaseContract)contract).getInstallments());
+            query.setInt(4, ((PurchaseContract)contract).getInterest());
+            query.setInt(5, ((PurchaseContract)contract).getSeller());
+            query.setInt(6, ((PurchaseContract)contract).getBuyer());
+        }
+        else if(contract instanceof TenancyContract) {
+            insertSQL = "INSERT INTO tenancy_contract("
+                    + Contract.DB_COLUMN_DATE + ", "
+                    + Contract.DB_COLUMN_PLACE + ", "
+                    + TenancyContract.DB_COLUMN_START_DATE+ ", "
+                    + TenancyContract.DB_COLUMN_COST+ ", "
+                    + TenancyContract.DB_COLUMN_DURATION+ ", "
+                    + TenancyContract.DB_COLUMN_OWNER+ ", "
+                    + TenancyContract.DB_COLUMN_RENTER+ ") VALUES (?,?,?,?,?,?,?)";
+            query = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
+            query.setDate(1, contract.getDate());
+            query.setString(2, contract.getPlace());
+            query.setDate(3, ((TenancyContract)contract).getStartDate());
+            query.setDouble(4, ((TenancyContract)contract).getAdditionalCost());
+            query.setInt(5, ((TenancyContract)contract).getDuration());
+            query.setInt(6, ((TenancyContract)contract).getOwner());
+            query.setInt(7, ((TenancyContract)contract).getRenter());
+        }
 
-
-        PreparedStatement query = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
-        persistContract(contract, query);
-
+        query.executeUpdate();
         ResultSet resultSet = query.getGeneratedKeys();
         if (resultSet.next()) {
-            contract.set_id(resultSet.getInt(1));
+            contract.setId(resultSet.getInt(1));
         }
 
         resultSet.close();
         query.close();
     }
 
-    private void persistContract(Contract contract, PreparedStatement query) throws SQLException {
-        query.setInt(1, contract.get_id());
-        query.setString(2, contract.get_date());
-        query.setString(3, contract.get_place());
-        query.setBoolean(4, contract.get_is_tenancy());
-        query.setString(5, contract.get_start_date());
-        query.setInt(6, contract.get_duration());
-        query.setInt(7, contract.get_cost());
-        query.setString(8, contract.get_installments());
-        query.setInt(9, contract.get_interest());
+    public List<Contract> getContractList() {
+        List<Contract> result = new ArrayList<>();
+        try {
+            Connection con = DB2ConnectionManager.getInstance().getConnection();
 
+            String puchases = "SELECT * FROM purchase_contract";
+            String tenancies = "SELECT * FROM tenancy_contract";
+            PreparedStatement purchaseQuery = con.prepareStatement(puchases);
+            PreparedStatement tenancyQuery = con.prepareStatement(tenancies);
 
-        query.executeUpdate();
+            ResultSet purchaseResults = purchaseQuery.executeQuery();
+            ResultSet tenancyResults = tenancyQuery.executeQuery();
+
+            while(purchaseResults.next()) {
+                result.add(extractPurchase(purchaseResults));
+            }
+            while(tenancyResults.next()) {
+                result.add(extractTenancy(tenancyResults));
+            }
+
+            purchaseQuery.close();
+            purchaseResults.close();
+            tenancyQuery.close();
+            tenancyResults.close();
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
-*/
+
+    private Contract extractPurchase(ResultSet resultSet) throws SQLException {
+        // only parse as much as needed for display...
+        PurchaseContract contract = new PurchaseContract();
+        contract.setSeller(resultSet.getInt(PurchaseContract.DB_COLUMN_SELLER));
+        contract.setBuyer(resultSet.getInt(PurchaseContract.DB_COLUMN_BUYER));
+        contract.setId(resultSet.getInt(PurchaseContract.DB_COLUMN_ID));
+        return contract;
+    }
+
+    private Contract extractTenancy(ResultSet resultSet) throws SQLException {
+        // only parse as much as needed for display...
+        TenancyContract contract = new TenancyContract();
+        contract.setOwner(resultSet.getInt(TenancyContract.DB_COLUMN_OWNER));
+        contract.setRenter(resultSet.getInt(TenancyContract.DB_COLUMN_RENTER));
+        contract.setId(resultSet.getInt(TenancyContract.DB_COLUMN_ID));
+        return contract;
+    }
+
     /*
      * Person accesses:
      */

@@ -1,6 +1,8 @@
 package de.dis2011.data;
 
 
+import java.sql.Date;
+
 /**
  * Contract-Pojo
  */
@@ -12,7 +14,7 @@ public class Contract {
     public static final String DB_COLUMN_PLACE = "PLACE";
 
     private int id = -1;
-    private String date;
+    private Date date;
     private String place;
 
     public int getId() {
@@ -23,11 +25,11 @@ public class Contract {
         this.id = id;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
