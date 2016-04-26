@@ -44,6 +44,37 @@ public class DataAccessHelper {
         return null;
     }
 
+
+    /** Load one row from db, parse to estateagent object */
+    public EstateAgent loadEstateAgent(String login) {
+        try{
+            Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+            String selectSQL = "SELECT * FROM estate_agent WHERE " + EstateAgent.DB_COLUMN_LOGIN + " = ?";
+            PreparedStatement query = con.prepareStatement(selectSQL);
+            query.setString(1, login);
+
+            ResultSet resultSet = query.executeQuery();
+            if (resultSet.next()) {
+                EstateAgent agent = new EstateAgent();
+                agent.setId(EstateAgent.DB_COLUMN_ID);
+                agent.setName(resultSet.getString(EstateAgent.DB_COLUMN_NAME));
+                agent.setAddress(resultSet.getString(EstateAgent.DB_COLUMN_ADDRESS));
+                agent.setLogin(login);
+                agent.setPassword(resultSet.getString(EstateAgent.DB_COLUMN_PASSWORD));
+
+                resultSet.close();
+                query.close();
+                return agent;
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     /**
          * Persist the given estateAgent object to db. An ID will be automatically
      * fetched (if not already present) and set. Returns the ID of the agent.

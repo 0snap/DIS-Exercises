@@ -200,9 +200,12 @@ public class Main {
 	}
 
 	private EstateAgent loginEstateAgent() {
-		int id = Integer.parseInt(FormUtil.readString("Login Agent ID"));
+		String id = FormUtil.readString("Agent Login");
 		EstateAgent agent = accessHelper.loadEstateAgent(id);
-
+		if(agent == null){
+			System.out.println("EstateAgent is not known, please ensure you provided the right Login!");
+            return null;
+		}
 		if (!FormUtil.readString("Agent password").equals(agent.getPassword())) {
 			System.out.println("Incorrect password! You are not allowed to proceed");
 			return null;
@@ -319,8 +322,8 @@ public class Main {
 			PurchaseContract purchaseContract = new PurchaseContract(contract);
 			purchaseContract.setInterest(FormUtil.readInt("Number of interested people"));
 			purchaseContract.setInstallments(FormUtil.readInt("Number of installments"));
-			purchaseContract.setSeller(FormUtil.readInt("Peron ID - Seller"));
-			purchaseContract.setBuyer(FormUtil.readInt("Peron ID - Buyer"));
+			purchaseContract.setSeller(FormUtil.readInt("Person ID - Seller"));
+			purchaseContract.setBuyer(FormUtil.readInt("Person ID - Buyer"));
 			return purchaseContract;
 		}
 		else {
@@ -328,8 +331,8 @@ public class Main {
 			tenancyContract.setAdditionalCost(FormUtil.readInt("Additional Costs"));
 			tenancyContract.setDuration(FormUtil.readInt("Duration of rent (months)"));
 			tenancyContract.setStartDate(new Date(new java.util.Date().getTime()));
-			tenancyContract.setOwner(FormUtil.readInt("Peron ID - Owner"));
-			tenancyContract.setRenter(FormUtil.readInt("Peron ID - Renter"));
+			tenancyContract.setOwner(FormUtil.readInt("Person ID - Owner"));
+			tenancyContract.setRenter(FormUtil.readInt("Person ID - Renter"));
 			return tenancyContract;
 		}
 	}
