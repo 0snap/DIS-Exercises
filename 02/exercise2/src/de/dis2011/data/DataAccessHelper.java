@@ -57,7 +57,7 @@ public class DataAccessHelper {
             ResultSet resultSet = query.executeQuery();
             if (resultSet.next()) {
                 EstateAgent agent = new EstateAgent();
-                agent.setId(EstateAgent.DB_COLUMN_ID);
+                agent.setId(resultSet.getInt(EstateAgent.DB_COLUMN_ID));
                 agent.setName(resultSet.getString(EstateAgent.DB_COLUMN_NAME));
                 agent.setAddress(resultSet.getString(EstateAgent.DB_COLUMN_ADDRESS));
                 agent.setLogin(login);
