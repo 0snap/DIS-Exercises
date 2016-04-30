@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="de.dis2013.data.Estate" abstract="true">
+		<id name="id" column="id">
+			<generator class="increment" />
+		</id>
+		<property name="city" type="string" column="city" />
+		<property name="postalCode" type="integer" column="postal_code" />
+		<property name="street" type="string" column="street" />
+		<property name="streetNumber" type="string" column="street_number" />
+		<property name="squareArea" type="integer" column="square_area" />
+		<many-to-one name="estateAgent" class="de.dis2013.data.EstateAgent" column="estate_agent" not-null="true" />
+		
+		<union-subclass name="de.dis2013.data.House" table="House">
+			<property name="floor" type="integer" column="floor" />
+			<property name="price" type="integer" column="price" />
+			<property name="garden" type="boolean" column="garden" />
+		</union-subclass>
+	</class>
+</hibernate-mapping>
