@@ -4,9 +4,6 @@ import java.util.Set;
 
 import de.dis2013.util.Helper;
 
-/**
- * EstateAgent-Bean
- */
 public class EstateAgent {
 	private int id;
 	private String name;
@@ -15,7 +12,7 @@ public class EstateAgent {
 	private String password;
 	static int currentId = 0;
 	private Set<Estate> estates;
-	
+
 	public EstateAgent() {
 	}
 	

@@ -13,7 +13,7 @@ public abstract class Contract {
 	private String place;
 	static int currentId = 0;
 	int id;
-	Person vertragspartner;
+	Person person;
 	
 	public Contract() {
 		this.id = currentId++;
@@ -46,12 +46,12 @@ public abstract class Contract {
 		this.id = id;
 	}
 
-	public Person getVertragspartner() {
-		return vertragspartner;
+	public Person getPerson() {
+		return person;
 	}
 
-	public void setVertragspartner(Person vertragspartner) {
-		this.vertragspartner = vertragspartner;
+	public void setPerson(Person person) {
+		this.person = person;
 	}
 
 	public int hashCode() {

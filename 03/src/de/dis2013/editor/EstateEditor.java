@@ -2,7 +2,7 @@ package de.dis2013.editor;
 
 import java.util.Set;
 
-import de.dis2013.core.ImmoService;
+import de.dis2013.core.EstateService;
 import de.dis2013.data.Apartment;
 import de.dis2013.data.House;
 import de.dis2013.data.EstateAgent;
@@ -14,14 +14,14 @@ import de.dis2013.util.FormUtil;
 /**
  * Klasse für die Menüs zur Verwaltung von Immobilien
  */
-public class ImmobilienEditor {
+public class EstateEditor {
 	///Immobilienservice, der genutzt werden soll
-	private ImmoService service;
+	private EstateService service;
 	
 	///Wird als Verwalter für die Immobilien eingetragen
 	private EstateAgent verwalter;
 	
-	public ImmobilienEditor(ImmoService service, EstateAgent verwalter) {
+	public EstateEditor(EstateService service, EstateAgent verwalter) {
 		this.service = service;
 		this.verwalter = verwalter;
 	}
@@ -220,8 +220,8 @@ public class ImmobilienEditor {
 			int newFlaeche = FormUtil.readInt("Fläche ("+w.getSquareArea()+")");
 			int newStockwerk = FormUtil.readInt("Stockwerk ("+w.getFloor()+")");
 			int newMietpreis = FormUtil.readInt("Mietpreis ("+w.getRent()+")");
-			boolean newEbk = FormUtil.readBoolean("EBK ("+(w.isBuiltInKitchen() ? "j" : "n")+")");
-			boolean newBalkon = FormUtil.readBoolean("Balkon ("+(w.isBalcony() ? "j" : "n")+")");
+			boolean newEbk = FormUtil.readBoolean("EBK ("+(w.getBuiltInKitchen() ? "j" : "n")+")");
+			boolean newBalkon = FormUtil.readBoolean("Balkon ("+(w.getBalcony() ? "j" : "n")+")");
 			
 			//Neue Daten setzen
 			if(!newOrt.equals(""))

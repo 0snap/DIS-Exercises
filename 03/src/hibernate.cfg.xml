@@ -19,7 +19,7 @@
 		<property name="hbm2ddl.auto">create</property>
 
 		<mapping resource="de/dis2013/data/mapping/Person.hbm.xml" />
-		<mapping resource="de/dis2013/data/mapping/Makler.hbm.xml" />
-		<mapping resource="de/dis2013/data/mapping/Immobilie.hbm.xml" />
+		<mapping resource="de/dis2013/data/mapping/EstateAgent.hbm.xml" />
+		<mapping resource="de/dis2013/data/mapping/Estate.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>

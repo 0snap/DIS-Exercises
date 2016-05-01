@@ -3,7 +3,7 @@ package de.dis2013.editor;
 import java.util.Iterator;
 import java.util.Set;
 
-import de.dis2013.core.ImmoService;
+import de.dis2013.core.EstateService;
 import de.dis2013.data.*;
 import de.dis2013.data.House;
 import de.dis2013.menu.AppartmentSelectionMenu;
@@ -13,40 +13,29 @@ import de.dis2013.menu.PersonSelectionMenu;
 import de.dis2013.util.FormUtil;
 import de.dis2013.util.Helper;
 
-/**
- * Klasse für die Menüs zur Verwaltung von Verträgen
- */
-public class VertragsEditor {
-	///Immobilien-Service, der genutzt werden soll
-	private ImmoService service;
+public class ContractEditor {
+	private EstateService service;
 	
-	///EstateAgent, zu dessen Immobilien Verträge geschlossen werden dürfen
-	private EstateAgent verwalter;
+	private EstateAgent estateAgent;
 	
-	public VertragsEditor(ImmoService service, EstateAgent verwalter) {
+	public ContractEditor(EstateService service, EstateAgent verwalter) {
 		this.service = service;
-		this.verwalter = verwalter;
+		this.estateAgent = verwalter;
 	}
 	
-	/**
-	 * Vertragsmenü
-	 */
-	public void showVertragsMenu() {
-		//Menüoptionen
+	public void showContractMenu() {
 		final int NEW_LEASING_CONTRACT = 0;
 		final int NEW_SALE_CONTRACT = 1;
 		final int SHOW_CONTRACTS = 2;
 		final int BACK = 3;
 		
-		//Vertragsverwaltung
-		Menu maklerMenu = new Menu("Vertrags-Verwaltung");
-		maklerMenu.addEntry("Neuer TenancyContract", NEW_LEASING_CONTRACT);
-		maklerMenu.addEntry("Neuer PurchaseContract", NEW_SALE_CONTRACT);
-		maklerMenu.addEntry("Verträge ansehen", SHOW_CONTRACTS);
+		Menu maklerMenu = new Menu("Contract-Menu");
+		maklerMenu.addEntry("New TenancyContract", NEW_LEASING_CONTRACT);
+		maklerMenu.addEntry("New PurchaseContract", NEW_SALE_CONTRACT);
+		maklerMenu.addEntry("Show Contracts", SHOW_CONTRACTS);
 		
-		maklerMenu.addEntry("Zurück zum Hauptmenü", BACK);
+		maklerMenu.addEntry("Back to main menu", BACK);
 		
-		//Verarbeite Eingabe
 		while(true) {
 			int response = maklerMenu.show();
 			
@@ -67,31 +56,29 @@ public class VertragsEditor {
 	}
 	
 	public void zeigeVertraege() {
-		//Mietverträge anzeigen
-		System.out.println("Mietverträge\n-----------------");
-		Set<TenancyContract> mvs = service.getAllMietvertraegeForMakler(verwalter);
+		System.out.println("TenancyContracts\n-----------------");
+		Set<TenancyContract> mvs = service.getAllMietvertraegeForMakler(estateAgent);
 		Iterator<TenancyContract> itmv = mvs.iterator();
 		while(itmv.hasNext()) {
-			TenancyContract mv = itmv.next();
-			System.out.println("TenancyContract "+mv.getContractNumber()+"\n"+
-							"\tGeschlossen am "+Helper.dateToString(mv.getDate())+" in "+mv.getPlace()+"\n"+
-							"\tMieter:        "+mv.getVertragspartner().getFirstName()+" "+mv.getVertragspartner().getName()+"\n"+
-							"\tApartment:       "+mv.getApartment().getStreet()+" "+mv.getApartment().getStreetNumber()+", "+mv.getApartment().getPostalCode()+" "+mv.getApartment().getCity()+"\n"+
-							"\tMietbeginn:    "+Helper.dateToString(mv.getStartDate())+", Dauer: "+mv.getDuration()+" Monate\n"+
-							"\tMietpreis:     "+mv.getApartment().getRent()+" Euro, Nebenkosten: "+mv.getAdditionalCosts()+" Euro\n");
+			TenancyContract tenancyContract = itmv.next();
+			System.out.println("TenancyContract "+tenancyContract.getContractNumber()+"\n"+
+							"\tGeschlossen am "+Helper.dateToString(tenancyContract.getDate())+" in "+tenancyContract.getPlace()+"\n"+
+							"\tMieter:        "+tenancyContract.getPerson().getFirstName()+" "+tenancyContract.getPerson().getName()+"\n"+
+							"\tApartment:       "+tenancyContract.getApartment().getStreet()+" "+tenancyContract.getApartment().getStreetNumber()+", "+tenancyContract.getApartment().getPostalCode()+" "+tenancyContract.getApartment().getCity()+"\n"+
+							"\tMietbeginn:    "+Helper.dateToString(tenancyContract.getStartDate())+", Dauer: "+tenancyContract.getDuration()+" Monate\n"+
+							"\tMietpreis:     "+tenancyContract.getApartment().getRent()+" Euro, Nebenkosten: "+tenancyContract.getAdditionalCosts()+" Euro\n");
 		}
 		
 		System.out.println("");
 		
-		//Kaufverträge anzeigen
-		System.out.println("Kaufverträge\n-----------------");
-		Set<PurchaseContract> kvs = service.getAllKaufvertraegeForMakler(verwalter);
+		System.out.println("PurchaseContracts\n-----------------");
+		Set<PurchaseContract> kvs = service.getAllKaufvertraegeForMakler(estateAgent);
 		Iterator<PurchaseContract> itkv = kvs.iterator();
 		while(itkv.hasNext()) {
 			PurchaseContract kv = itkv.next();
 			System.out.println("PurchaseContract "+kv.getContractNumber()+"\n"+
 							"\tGeschlossen am "+Helper.dateToString(kv.getDate())+" in "+kv.getPlace()+"\n"+
-							"\tMieter:        "+kv.getVertragspartner().getFirstName()+" "+kv.getVertragspartner().getName()+"\n"+
+							"\tMieter:        "+kv.getPerson().getFirstName()+" "+kv.getPerson().getName()+"\n"+
 							"\tHouse:          "+kv.getHouse().getStreet()+" "+kv.getHouse().getStreetNumber()+", "+kv.getHouse().getPostalCode()+" "+kv.getHouse().getCity()+"\n"+
 							"\tKaufpreis:     "+kv.getHouse().getPrice()+" Euro\n"+
 							"\tRaten:         "+kv.getNumberOfInstallments()+", Ratenzins: "+kv.getInterestRate()+"%\n");
@@ -99,33 +86,25 @@ public class VertragsEditor {
 	}
 	
 	
-	/**
-	 * Menü zum anlegen eines neuen Mietvertrags
-	 */
+
 	public void newMietvertrag() {
-		//Alle Wohnungen des Maklers finden
-		Set<Apartment> wohnungen = service.getAllWohnungenForMakler(verwalter);
+		Set<Apartment> wohnungen = service.getAllWohnungenForMakler(estateAgent);
 		
-		//Auswahlmenü für die Wohnungen 
 		AppartmentSelectionMenu asm = new AppartmentSelectionMenu("Apartment für Contract auswählen", wohnungen);
 		int wid = asm.show();
 		
-		//Falls kein Abbruch: Auswahl der Person
 		if(wid != AppartmentSelectionMenu.BACK) {
-			//Alle Personen laden
 			Set<Person> personen = service.getAllPersons();
 			
-			//Menü zur Auswahl der Person
 			PersonSelectionMenu psm = new PersonSelectionMenu("Person für Contract auswählen", personen);
 			int pid = psm.show();
 			
-			//Falls kein Abbruch: Vertragsdaten abfragen und Contract anlegen
 			if(pid != PersonSelectionMenu.BACK) {
 				TenancyContract m = new TenancyContract();
 		
 				m.setApartment(service.getWohnungById(wid));
-				m.setVertragspartner(service.getPersonById(pid));
-				m.setContractNumber(FormUtil.readInt("Vertragsnummer"));
+				m.setPerson(service.getPersonById(pid));
+				m.setContractNumber(FormUtil.readInt("Contractnummer"));
 				m.setDate(FormUtil.readDate("Datum"));
 				m.setPlace(FormUtil.readString("Ort"));
 				m.setStartDate(FormUtil.readDate("Mietbeginn"));
@@ -139,33 +118,25 @@ public class VertragsEditor {
 		}
 	}
 	
-	/**
-	 * Menü zum anlegen eines neuen Kaufvertrags
-	 */
+
 	public void newKaufvertrag() {
-		//Alle Häuser des Maklers finden
-		Set<House> haeuser = service.getAllHaeuserForMakler(verwalter);
+		Set<House> haeuser = service.getAllHaeuserForMakler(estateAgent);
 		
-		//Auswahlmenü für das House
 		HouseSelectionMenu asm = new HouseSelectionMenu("House für Contract auswählen", haeuser);
-		int hid = asm.show();
+		int houseId = asm.show();
 		
-		//Falls kein Abbruch: Auswahl der Person
-		if(hid != AppartmentSelectionMenu.BACK) {
-			//Alle Personen laden
+		if(houseId != AppartmentSelectionMenu.BACK) {
 			Set<Person> personen = service.getAllPersons();
 			
-			//Menü zur Auswahl der Person
 			PersonSelectionMenu psm = new PersonSelectionMenu("Person für Contract auswählen", personen);
 			int pid = psm.show();
 			
-			//Falls kein Abbruch: Vertragsdaten abfragen und Contract anlegen
 			if(pid != PersonSelectionMenu.BACK) {
 				PurchaseContract k = new PurchaseContract();
 		
-				k.setHouse(service.getHausById(hid));
-				k.setVertragspartner(service.getPersonById(pid));
-				k.setContractNumber(FormUtil.readInt("Vertragsnummer"));
+				k.setHouse(service.getHausById(houseId));
+				k.setPerson(service.getPersonById(pid));
+				k.setContractNumber(FormUtil.readInt("Contractnummer"));
 				k.setDate(FormUtil.readDate("Datum"));
 				k.setPlace(FormUtil.readString("Ort"));
 				k.setNumberOfInstallments(FormUtil.readInt("Anzahl Raten"));

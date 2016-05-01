@@ -1,6 +1,6 @@
 package de.dis2013.editor;
 
-import de.dis2013.core.ImmoService;
+import de.dis2013.core.EstateService;
 import de.dis2013.data.Person;
 import de.dis2013.menu.Menu;
 import de.dis2013.menu.PersonSelectionMenu;
@@ -11,9 +11,9 @@ import de.dis2013.util.FormUtil;
  */
 public class PersonEditor {
 	///Immobilienservice, der genutzt werden soll
-	private ImmoService service;
+	private EstateService service;
 	
-	public PersonEditor(ImmoService service) {
+	public PersonEditor(EstateService service) {
 		this.service = service;
 	}
 	

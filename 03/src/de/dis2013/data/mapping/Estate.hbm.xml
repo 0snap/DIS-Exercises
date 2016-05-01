@@ -15,9 +15,17 @@
 		<many-to-one name="estateAgent" class="de.dis2013.data.EstateAgent" column="estate_agent" not-null="true" />
 		
 		<union-subclass name="de.dis2013.data.House" table="House">
-			<property name="floor" type="integer" column="floor" />
+			<property name="floors" type="integer" column="floors" />
 			<property name="price" type="integer" column="price" />
 			<property name="garden" type="boolean" column="garden" />
+		</union-subclass>
+
+		<union-subclass name="de.dis2013.data.Apartment" table="Apartment">
+            <property name="floor" type="integer" column="floor" />
+            <property name="rent" type="integer" column="rent" />
+            <property name="rooms" type="integer" column="rooms" />
+            <property name="balcony" type="boolean" column="balcony" />
+            <property name="builtInKitchen" type="boolean" column="built_in_kitchen" />
 		</union-subclass>
 	</class>
 </hibernate-mapping>

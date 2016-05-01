@@ -3,9 +3,6 @@ package de.dis2013.data;
 import de.dis2013.util.Helper;
 
 
-/**
- * Wohnungs-Bean
- */
 public class Apartment extends Estate {
 	private int floor;
 	private int rent;
@@ -35,13 +32,13 @@ public class Apartment extends Estate {
 	public void setRooms(int rooms) {
 		this.rooms = rooms;
 	}
-	public boolean isBalcony() {
+	public boolean getBalcony() {
 		return balcony;
 	}
 	public void setBalcony(boolean balcony) {
 		this.balcony = balcony;
 	}
-	public boolean isBuiltInKitchen() {
+	public boolean getBuiltInKitchen() {
 		return builtInKitchen;
 	}
 	public void setBuiltInKitchen(boolean builtInKitchen) {
@@ -55,8 +52,8 @@ public class Apartment extends Estate {
 		result = prime * result + getFloor();
 		result = prime * result + getRent();
 		result = prime * result + getRooms();
-		result = prime * result + ((isBalcony()) ? 1 : 0);
-		result = prime * result + ((isBuiltInKitchen()) ? 1 : 0);
+		result = prime * result + ((getBalcony()) ? 1 : 0);
+		result = prime * result + ((getBuiltInKitchen()) ? 1 : 0);
 		
 		return result;
 	}
@@ -70,7 +67,7 @@ public class Apartment extends Estate {
 	
 		Apartment other = (Apartment)obj;
 	
-		if(other.getId() != getId() ||
+		return other.getId() != getId() ||
 				other.getPostalCode() != getPostalCode() ||
 				other.getSquareArea() != getSquareArea() ||
 				!Helper.compareObjects(this.getCity(), other.getCity()) ||
@@ -79,12 +76,7 @@ public class Apartment extends Estate {
 				getFloor() != other.getFloor() ||
 				getRent() != other.getRent() ||
 				getRooms() != other.getRooms() ||
-				isBalcony() != other.isBalcony() ||
-				isBuiltInKitchen() != other.isBuiltInKitchen())
-		{
-			return false;
-		}
-		
-		return true;
+				getBalcony() != other.getBalcony() ||
+				getBuiltInKitchen() != other.getBuiltInKitchen();
 	}
 }
