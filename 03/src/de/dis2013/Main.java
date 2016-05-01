@@ -35,22 +35,20 @@ public class Main {
 		PropertiesFileAuthenticator adminAuthenticator = new PropertiesFileAuthenticator("admin.properties");
 		AgentAuthenticator agentAuthenticator = new AgentAuthenticator(service);
 		
-		service.addTestData();
-		
 		while(true) {
 			int response = mainMenu.show();
 			
 			switch(response) {
 				case MENU_AGENT:
 					if(adminAuthenticator.authenticate()) {
-						EstateAgentEditor me = new EstateAgentEditor(service);
-						me.showMaklerMenu();
+						EstateAgentEditor agentEditor = new EstateAgentEditor(service);
+						agentEditor.showAgentMenu();
 					}
 					break;
 				case MENU_PERSON:
 					if(agentAuthenticator.authenticate()) {
-						PersonEditor pe = new PersonEditor(service);
-						pe.showPersonMenu();
+						PersonEditor personEditor = new PersonEditor(service);
+						personEditor.showPersonMenu();
 					}
 					break;
 				case MENU_ESTATE:

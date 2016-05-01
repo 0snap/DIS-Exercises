@@ -1,6 +1,7 @@
 package de.dis2013.menu;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import de.dis2013.data.House;
@@ -11,14 +12,12 @@ import de.dis2013.data.House;
 public class HouseSelectionMenu extends Menu {
 	public static final int BACK = -1;
 	
-	public HouseSelectionMenu(String title, Set<House> haeuser) {
+	public HouseSelectionMenu(String title, List<House> houses) {
 		super(title);
-		
-		Iterator<House> it = haeuser.iterator();
-		while(it.hasNext()) {
-			House h = it.next();
-			addEntry(h.getStreet()+" "+h.getStreetNumber()+", "+h.getPostalCode()+" "+h.getCity(), h.getId());
+
+		for (House house : houses) {
+			addEntry(house.getStreet()+" "+house.getStreetNumber()+", "+house.getPostalCode()+" "+house.getCity(), house.getId());
 		}
-		addEntry("Zurück", BACK);
+		addEntry("Back", BACK);
 	}
 }

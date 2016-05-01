@@ -4,6 +4,11 @@ import java.util.Set;
 
 import de.dis2013.util.Helper;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="estate_agent")
 public class EstateAgent {
 	private int id;
 	private String name;

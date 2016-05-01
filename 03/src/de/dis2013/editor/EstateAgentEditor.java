@@ -1,15 +1,15 @@
 package de.dis2013.editor;
 
-import de.dis2013.core.EstateService;
+import de.dis2013.core.DataAccessService;
 import de.dis2013.data.EstateAgent;
 import de.dis2013.menu.AgentSelectionMenu;
 import de.dis2013.menu.Menu;
 import de.dis2013.util.FormUtil;
 
 public class EstateAgentEditor {
-	private EstateService service;
+	private DataAccessService service;
 	
-	public EstateAgentEditor(EstateService service) {
+	public EstateAgentEditor(DataAccessService service) {
 		this.service = service;
 	}
 	
@@ -45,37 +45,40 @@ public class EstateAgentEditor {
 	}
 	
 	public void newAgent() {
-		EstateAgent m = new EstateAgent();
+		EstateAgent agent = new EstateAgent();
 		
-		m.setName(FormUtil.readString("Name"));
-		m.setAddress(FormUtil.readString("Adresse"));
-		m.setLogin(FormUtil.readString("Login"));
-		m.setPassword(FormUtil.readString("Passwort"));
-		service.addAgent(m);
+		agent.setName(FormUtil.readString("Name"));
+		agent.setAddress(FormUtil.readString("Adresse"));
+		agent.setLogin(FormUtil.readString("Login"));
+		agent.setPassword(FormUtil.readString("Passwort"));
+		service.persist(agent);
 		
-		System.out.println("EstateAgent mit der ID "+m.getId()+" wurde erzeugt.");
+		System.out.println("Created EstateAgent with ID "+agent.getId()+".");
 	}
 	
-	/**
-	 * Berarbeitet einen EstateAgent, nachdem der Benutzer ihn ausgewählt hat
-	 */
+
 	public void editAgent() {
-		Menu agentSelectionMenu = new AgentById(id);
-			System.out.println("EstateAgent "+m.getName()+" wird bearbeitet. Leere Felder bleiben unverändert.");
+		Menu agentSelectionMenu = new AgentSelectionMenu("Edit Agent", service.getAllAgents());
+		int id = agentSelectionMenu.show();
+
+		if(id != AgentSelectionMenu.BACK) {
+			EstateAgent agent = (EstateAgent)service.getById(EstateAgent.class, id);
+			System.out.println("Edit EstateAgent "+agent.getName()+". Leave empty for no changes");
 			
-			String new_name = FormUtil.readString("Name ("+m.getName()+")");
-			String new_address = FormUtil.readString("Adresse ("+m.getAddress()+")");
-			String new_login = FormUtil.readString("Login ("+m.getLogin()+")");
-			String new_password = FormUtil.readString("Passwort ("+m.getPassword()+")");
+			String new_name = FormUtil.readString("Name ("+agent.getName()+")");
+			String new_address = FormUtil.readString("Address ("+agent.getAddress()+")");
+			String new_login = FormUtil.readString("Login ("+agent.getLogin()+")");
+			String new_password = FormUtil.readString("Password ("+agent.getPassword()+")");
 			
 			if(!new_name.equals(""))
-				m.setName(new_name);
+				agent.setName(new_name);
 			if(!new_address.equals(""))
-				m.setAddress(new_address);
+				agent.setAddress(new_address);
 			if(!new_login.equals(""))
-				m.setLogin(new_login);
+				agent.setLogin(new_login);
 			if(!new_password.equals(""))
-				m.setPassword(new_password);
+				agent.setPassword(new_password);
+			service.update(agent);
 		}
 	}
 	
@@ -84,8 +87,12 @@ public class EstateAgentEditor {
 	 * ihn ausgewählt hat.
 	 */
 	public void deleteAgent() {
-		Menu agentSelectionMenu = new AgentById(id);
-			service.deleteAgent(m);
+		Menu agentSelectionMenu = new AgentSelectionMenu("Delete EstateAgent", service.getAllAgents());
+		int id = agentSelectionMenu.show();
+
+		if(id != AgentSelectionMenu.BACK) {
+			EstateAgent agent = (EstateAgent)service.getById(EstateAgent.class, id);
+			service.delete(agent);
 		}
 	}
 }

@@ -1,42 +1,33 @@
 package de.dis2013.editor;
 
+import de.dis2013.core.DataAccessService;
 import de.dis2013.core.EstateService;
 import de.dis2013.data.Person;
 import de.dis2013.menu.Menu;
 import de.dis2013.menu.PersonSelectionMenu;
 import de.dis2013.util.FormUtil;
 
-/**
- * Klasse für die Menüs zur Verwaltung von Personen
- */
 public class PersonEditor {
-	///Immobilienservice, der genutzt werden soll
-	private EstateService service;
+	private DataAccessService service;
 	
-	public PersonEditor(EstateService service) {
+	public PersonEditor(DataAccessService service) {
 		this.service = service;
 	}
 	
-	/**
-	 * Zeigt die Personenverwaltung
-	 */
 	public void showPersonMenu() {
-		//Menüoptionen
 		final int NEW_PERSON = 0;
 		final int EDIT_PERSON = 1;
 		final int DELETE_PERSON = 2;
 		final int BACK = 3;
 		
-		//Personenverwaltungsmenü
-		Menu maklerMenu = new Menu("Personen-Verwaltung");
-		maklerMenu.addEntry("Neue Person", NEW_PERSON);
-		maklerMenu.addEntry("Person bearbeiten", EDIT_PERSON);
-		maklerMenu.addEntry("Person löschen", DELETE_PERSON);
-		maklerMenu.addEntry("Zurück zum Hauptmenü", BACK);
+		Menu personMenu = new Menu("Person Menu");
+		personMenu.addEntry("New Person", NEW_PERSON);
+		personMenu.addEntry("Edit Person", EDIT_PERSON);
+		personMenu.addEntry("Delete Person", DELETE_PERSON);
+		personMenu.addEntry("Back", BACK);
 		
-		//Verarbeite Eingabe
 		while(true) {
-			int response = maklerMenu.show();
+			int response = personMenu.show();
 			
 			switch(response) {
 				case NEW_PERSON:
@@ -54,63 +45,49 @@ public class PersonEditor {
 		}
 	}
 	
-	/**
-	 * Legt eine neue Person an, nachdem der Benutzer
-	 * die entprechenden Daten eingegeben hat.
-	 */
+
 	public void newPerson() {
 		Person p = new Person();
 		
-		p.setFirstName(FormUtil.readString("Vorname"));
-		p.setName(FormUtil.readString("Nachname"));
-		p.setAddress(FormUtil.readString("Adresse"));
-		service.addPerson(p);
+		p.setFirstName(FormUtil.readString("First name"));
+		p.setName(FormUtil.readString("Name"));
+		p.setAddress(FormUtil.readString("Address"));
+		service.persist(p);
 		
 		System.out.println("Person mit der ID "+p.getId()+" wurde erzeugt.");
 	}
 	
-	/**
-	 * Editiert eine Person, nachdem der Benutzer sie ausgewählt hat
-	 */
+
 	public void editPerson() {
-		//Personenauswahlmenü
-		Menu personSelectionMenu = new PersonSelectionMenu("Person bearbeiten", service.getAllPersons());
+		Menu personSelectionMenu = new PersonSelectionMenu("Edit Person", service.getAllPersons());
 		int id = personSelectionMenu.show();
 		
-		//Person barbeiten?
 		if(id != PersonSelectionMenu.BACK) {
-			//Person laden
-			Person p = service.getPersonById(id);
-			System.out.println("Person "+p.getFirstName()+" "+p.getName()+" wird bearbeitet. Leere Felder bleiben unverändert.");
+			Person person = (Person)service.getById(Person.class, id);
+			System.out.println("Edit Person "+person.getFirstName()+". Leave empty for no changes");
+
+			String newFirstName = FormUtil.readString("First name ("+person.getFirstName()+")");
+			String newName = FormUtil.readString("Name ("+person.getName()+")");
+			String newAddress = FormUtil.readString("Address ("+person.getAddress()+")");
 			
-			//Neue Daten einlesen
-			String newVorname = FormUtil.readString("Vorname ("+p.getFirstName()+")");
-			String newNachname = FormUtil.readString("Nachname ("+p.getName()+")");
-			String newAddress = FormUtil.readString("Adresse ("+p.getAddress()+")");
-			
-			//Neue Daten setzen
-			if(!newVorname.equals(""))
-				p.setFirstName(newVorname);
-			if(!newNachname.equals(""))
-				p.setName(newNachname);
+			if(!newFirstName.equals(""))
+				person.setFirstName(newFirstName);
+			if(!newName.equals(""))
+				person.setName(newName);
 			if(!newAddress.equals(""))
-				p.setAddress(newAddress);
+				person.setAddress(newAddress);
+
+			service.update(person);
 		}
 	}
-	
-	/**
-	 * Löscht eine Person, nachdem der Benutzer
-	 * die entprechende ID eingegeben hat.
-	 */
+
 	public void deletePerson() {
-		//Auswahl der Person
-		Menu personSelectionMenu = new PersonSelectionMenu("Person bearbeiten", service.getAllPersons());
+		Menu personSelectionMenu = new PersonSelectionMenu("Delete Person", service.getAllPersons());
 		int id = personSelectionMenu.show();
 		
-		//Löschen, falls nicht "zurück" gewählt wurde
 		if(id != PersonSelectionMenu.BACK) {
-			Person p = service.getPersonById(id);
-			service.deletePerson(p);
+			Person person = (Person)service.getById(Person.class, id);
+			service.delete(person);
 		}
 	}
 }

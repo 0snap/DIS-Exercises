@@ -1,24 +1,18 @@
 package de.dis2013.menu;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import de.dis2013.data.Person;
 
-/**
- * Ein kleines Menü, dass alle Personen aus einem Set zur Auswahl anzeigt
- */
 public class PersonSelectionMenu extends Menu {
 	public static final int BACK = -1;
 	
-	public PersonSelectionMenu(String title, Set<Person> personen) {
+	public PersonSelectionMenu(String title, List<Person> persons) {
 		super(title);
-		
-		Iterator<Person> it = personen.iterator();
-		while(it.hasNext()) {
-			Person p = it.next();
-			addEntry(p.getFirstName()+" "+p.getName(), p.getId());
+
+		for(Person person : persons) {
+			addEntry(person.getFirstName() + " " + person.getName(), person.getId());
 		}
-		addEntry("Zurück", BACK);
+		addEntry("Back", BACK);
 	}
 }

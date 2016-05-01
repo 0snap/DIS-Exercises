@@ -1,9 +1,10 @@
 package de.dis2013.editor;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
-import de.dis2013.core.EstateService;
+import de.dis2013.core.DataAccessService;
 import de.dis2013.data.*;
 import de.dis2013.data.House;
 import de.dis2013.menu.AppartmentSelectionMenu;
@@ -14,11 +15,11 @@ import de.dis2013.util.FormUtil;
 import de.dis2013.util.Helper;
 
 public class ContractEditor {
-	private EstateService service;
+	private DataAccessService service;
 	
 	private EstateAgent estateAgent;
 	
-	public ContractEditor(EstateService service, EstateAgent verwalter) {
+	public ContractEditor(DataAccessService service, EstateAgent verwalter) {
 		this.service = service;
 		this.estateAgent = verwalter;
 	}
@@ -57,7 +58,7 @@ public class ContractEditor {
 	
 	public void zeigeVertraege() {
 		System.out.println("TenancyContracts\n-----------------");
-		Set<TenancyContract> mvs = service.getAllMietvertraegeForMakler(estateAgent);
+		List<TenancyContract> mvs = service.getAllTenancyContractsForAgent(estateAgent);
 		Iterator<TenancyContract> itmv = mvs.iterator();
 		while(itmv.hasNext()) {
 			TenancyContract tenancyContract = itmv.next();
@@ -72,7 +73,7 @@ public class ContractEditor {
 		System.out.println("");
 		
 		System.out.println("PurchaseContracts\n-----------------");
-		Set<PurchaseContract> kvs = service.getAllKaufvertraegeForMakler(estateAgent);
+		List<PurchaseContract> kvs = service.getAllPurchaseContractsForAgent(estateAgent);
 		Iterator<PurchaseContract> itkv = kvs.iterator();
 		while(itkv.hasNext()) {
 			PurchaseContract kv = itkv.next();
@@ -88,63 +89,63 @@ public class ContractEditor {
 	
 
 	public void newMietvertrag() {
-		Set<Apartment> wohnungen = service.getAllWohnungenForMakler(estateAgent);
+		List<Apartment> apartments = service.getAllApartmentsForAgent(estateAgent);
 		
-		AppartmentSelectionMenu asm = new AppartmentSelectionMenu("Apartment für Contract auswählen", wohnungen);
-		int wid = asm.show();
-		
-		if(wid != AppartmentSelectionMenu.BACK) {
-			Set<Person> personen = service.getAllPersons();
+		AppartmentSelectionMenu appartmentMenu = new AppartmentSelectionMenu("Select Apartment for Contract", apartments);
+		int apartmentId = appartmentMenu.show();
+
+		if(apartmentId != AppartmentSelectionMenu.BACK) {
+			List<Person> persons = service.getAllPersons();
 			
-			PersonSelectionMenu psm = new PersonSelectionMenu("Person für Contract auswählen", personen);
-			int pid = psm.show();
+			PersonSelectionMenu psm = new PersonSelectionMenu("Select Person for Contract", persons);
+			int personId = psm.show();
 			
-			if(pid != PersonSelectionMenu.BACK) {
-				TenancyContract m = new TenancyContract();
+			if(personId != PersonSelectionMenu.BACK) {
+				TenancyContract tenancyContract = new TenancyContract();
 		
-				m.setApartment(service.getWohnungById(wid));
-				m.setPerson(service.getPersonById(pid));
-				m.setContractNumber(FormUtil.readInt("Contractnummer"));
-				m.setDate(FormUtil.readDate("Datum"));
-				m.setPlace(FormUtil.readString("Ort"));
-				m.setStartDate(FormUtil.readDate("Mietbeginn"));
-				m.setDuration(FormUtil.readInt("Dauer in Monaten"));
-				m.setAdditionalCosts(FormUtil.readInt("Nebenkosten"));
+				tenancyContract.setApartment((Apartment)service.getById(Apartment.class, apartmentId));
+				tenancyContract.setPerson((Person)service.getById(Person.class, personId));
+				tenancyContract.setContractNumber(FormUtil.readInt("Contractnummer"));
+				tenancyContract.setDate(FormUtil.readDate("Datum"));
+				tenancyContract.setPlace(FormUtil.readString("Ort"));
+				tenancyContract.setStartDate(FormUtil.readDate("Mietbeginn"));
+				tenancyContract.setDuration(FormUtil.readInt("Dauer in Monaten"));
+				tenancyContract.setAdditionalCosts(FormUtil.readInt("Nebenkosten"));
 				
-				service.addMietvertrag(m);
+				service.persist(tenancyContract);
 				
-				System.out.println("TenancyContract mit der ID "+m.getId()+" wurde erzeugt.");
+				System.out.println("TenancyContract created with ID "+tenancyContract.getId()+".");
 			}
 		}
 	}
 	
 
 	public void newKaufvertrag() {
-		Set<House> haeuser = service.getAllHaeuserForMakler(estateAgent);
+		List<House> houses = service.getAllHousesForAgent(estateAgent);
 		
-		HouseSelectionMenu asm = new HouseSelectionMenu("House für Contract auswählen", haeuser);
-		int houseId = asm.show();
+		HouseSelectionMenu houseMenu = new HouseSelectionMenu("Select House for Contract", houses);
+		int houseId = houseMenu.show();
 		
 		if(houseId != AppartmentSelectionMenu.BACK) {
-			Set<Person> personen = service.getAllPersons();
+			List<Person> persons = service.getAllPersons();
 			
-			PersonSelectionMenu psm = new PersonSelectionMenu("Person für Contract auswählen", personen);
-			int pid = psm.show();
+			PersonSelectionMenu personMenu = new PersonSelectionMenu("Select Person for Contract", persons);
+			int personId = personMenu.show();
 			
-			if(pid != PersonSelectionMenu.BACK) {
-				PurchaseContract k = new PurchaseContract();
+			if(personId != PersonSelectionMenu.BACK) {
+				PurchaseContract purchaseContract = new PurchaseContract();
 		
-				k.setHouse(service.getHausById(houseId));
-				k.setPerson(service.getPersonById(pid));
-				k.setContractNumber(FormUtil.readInt("Contractnummer"));
-				k.setDate(FormUtil.readDate("Datum"));
-				k.setPlace(FormUtil.readString("Ort"));
-				k.setNumberOfInstallments(FormUtil.readInt("Anzahl Raten"));
-				k.setInterestRate(FormUtil.readInt("Ratenzins"));
+				purchaseContract.setHouse((House)service.getById(House.class, houseId));
+				purchaseContract.setPerson((Person)service.getById(Person.class, personId));
+				purchaseContract.setContractNumber(FormUtil.readInt("Contractnummer"));
+				purchaseContract.setDate(FormUtil.readDate("Datum"));
+				purchaseContract.setPlace(FormUtil.readString("Ort"));
+				purchaseContract.setNumberOfInstallments(FormUtil.readInt("Anzahl Raten"));
+				purchaseContract.setInterestRate(FormUtil.readInt("Ratenzins"));
 				
-				service.addKaufvertrag(k);
+				service.persist(purchaseContract);
 				
-				System.out.println("PurchaseContract mit der ID "+k.getId()+" wurde erzeugt.");
+				System.out.println("PurchaseContract created with ID "+purchaseContract.getId()+".");
 			}
 		}
 	}
