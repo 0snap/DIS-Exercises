@@ -127,6 +127,7 @@ public class EstateEditor {
 				house.setPrice(newKaufpreis);
 			
 			house.setGarden(newGarten);
+            service.update(house);
 		}
 	}
 	
@@ -207,6 +208,7 @@ public class EstateEditor {
 			
 			apartment.setBuiltInKitchen(newEbk);
 			apartment.setBalcony(newBalkon);
+            service.update(apartment);
 		}
 	}
 	

@@ -83,21 +83,19 @@ public class DataAccessService {
     }
 
     public List<Apartment> getAllApartmentsForAgent(EstateAgent agent) {
-        String hql = "FROM apartmanet apartment WHERE apartment.estate_agent= :agentId";
         Session session = sessionFactory.openSession();
         session.beginTransaction();
-        Query query = session.createQuery(hql);
-        query.setInteger("agentId", agent.getId());
-        return query.list();
+        Criteria criteria = session.createCriteria(Apartment.class);
+        criteria.add(Restrictions.eq("estateAgent", agent));
+        return criteria.list();
     }
 
     public List<House> getAllHousesForAgent(EstateAgent agent) {
-        String hql = "FROM house house WHERE house.estate_agent= :agentId";
         Session session = sessionFactory.openSession();
         session.beginTransaction();
-        Query query = session.createQuery(hql);
-        query.setInteger("agentId", agent.getId());
-        return query.list();
+        Criteria criteria = session.createCriteria(House.class);
+        criteria.add(Restrictions.eq("estateAgent", agent));
+        return criteria.list();
     }
 
 
