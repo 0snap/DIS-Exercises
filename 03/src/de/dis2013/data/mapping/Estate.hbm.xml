@@ -12,7 +12,7 @@
 		<property name="street" type="string" column="street" />
 		<property name="streetNumber" type="string" column="street_number" />
 		<property name="squareArea" type="integer" column="square_area" />
-		<many-to-one name="estateAgent" class="de.dis2013.data.EstateAgent" column="estate_agent" not-null="true" />
+		<many-to-one name="estateAgent" class="de.dis2013.data.EstateAgent" column="estate_agent" not-null="true" lazy="false"/>
 		
 		<union-subclass name="de.dis2013.data.House" table="House">
 			<property name="floors" type="integer" column="floors" />

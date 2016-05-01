@@ -8,7 +8,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataAccessService {
 
@@ -83,6 +85,22 @@ public class DataAccessService {
         return result;
     }
 
+    private List<TenancyContract> getAllTenancyContracts() {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        List<TenancyContract> result = session.createCriteria(TenancyContract.class).list();
+        session.close();
+        return result;
+    }
+
+    private List<PurchaseContract> getAllPurchaseContracts() {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        List<PurchaseContract> result = session.createCriteria(PurchaseContract.class).list();
+        session.close();
+        return result;
+    }
+
     public List<Apartment> getAllApartmentsForAgent(EstateAgent agent) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
@@ -103,29 +121,26 @@ public class DataAccessService {
         return result;
     }
 
-
-
-
-
-
-
-    // agents have no contracts
     public List<TenancyContract> getAllTenancyContractsForAgent(EstateAgent agent) {
-        String hql = "FROM tenancy_contract contract WHERE contract.estate_agent= :agentId";
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Query query = session.createQuery(hql);
-        query.setInteger("agentId", agent.getId());
-        return query.list();
+        List<Apartment> apartments = getAllApartmentsForAgent(agent);
+        List<TenancyContract> allContracts = getAllTenancyContracts();
+        List<TenancyContract> result = new ArrayList<>();
+        for(Apartment apartment : apartments) {
+            result.addAll(allContracts.stream().filter(
+                    contract -> contract.getApartment().getId() == apartment.getId()).collect(Collectors.toList()));
+        }
+        return result;
     }
 
     public List<PurchaseContract> getAllPurchaseContractsForAgent(EstateAgent agent) {
-        String hql = "FROM tenancy_contract contract WHERE contract.estate_agent= :agentId";
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Query query = session.createQuery(hql);
-        query.setInteger("agentId", agent.getId());
-        return query.list();
+        List<House> houses = getAllHousesForAgent(agent);
+        List<PurchaseContract> allContracts = getAllPurchaseContracts();
+        List<PurchaseContract> result = new ArrayList<>();
+        for(House house : houses) {
+            result.addAll(allContracts.stream().filter(
+                    contract -> contract.getHouse().getId() == house.getId()).collect(Collectors.toList()));
+        }
+        return result;
     }
 
 }

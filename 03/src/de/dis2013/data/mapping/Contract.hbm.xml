@@ -10,19 +10,19 @@
         <property name="contractNumber" type="int" column="contract_number" />
         <property name="date" type="java.util.Date" column="date" />
         <property name="place" type="string" column="place" />
-        <many-to-one name="person" class="de.dis2013.data.Person" column="person" not-null="true" />
+        <many-to-one name="person" class="de.dis2013.data.Person" column="person" not-null="true"  lazy="false"/>
 
         <union-subclass name="de.dis2013.data.PurchaseContract" table="purchase_contract">
             <property name="numberOfInstallments" type="integer" column="number_of_installments" />
             <property name="interestRate" type="integer" column="interest_rate" />
-            <many-to-one name="house" class="de.dis2013.data.House" column="house" not-null="false" />
+            <many-to-one name="house" class="de.dis2013.data.House" column="house" not-null="false"  lazy="false"/>
         </union-subclass>
 
         <union-subclass name="de.dis2013.data.TenancyContract" table="tenancy_contract">
             <property name="startDate" type="java.util.Date" column="start_date" />
             <property name="duration" type="integer" column="duration" />
             <property name="additionalCosts" type="integer" column="additional_costs" />
-            <many-to-one name="apartment" class="de.dis2013.data.Apartment" column="apartment" not-null="true" />
+            <many-to-one name="apartment" class="de.dis2013.data.Apartment" column="apartment" not-null="true"  lazy="false"/>
         </union-subclass>
     </class>
 </hibernate-mapping>
