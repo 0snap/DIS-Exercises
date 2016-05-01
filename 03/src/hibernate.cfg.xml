@@ -21,5 +21,6 @@
 		<mapping resource="de/dis2013/data/mapping/Person.hbm.xml" />
 		<mapping resource="de/dis2013/data/mapping/EstateAgent.hbm.xml" />
 		<mapping resource="de/dis2013/data/mapping/Estate.hbm.xml" />
+		<mapping resource="de/dis2013/data/mapping/Contract.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>

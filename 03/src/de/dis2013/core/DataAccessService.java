@@ -46,7 +46,6 @@ public class DataAccessService {
         session.beginTransaction();
         Object result = session.get(clazz, id);
         session.close();
-
         return result;
     }
 
@@ -63,7 +62,9 @@ public class DataAccessService {
         session.beginTransaction();
         Criteria criteria = session.createCriteria(EstateAgent.class);
         criteria.add(Restrictions.eq("login", login));
-        return (EstateAgent) criteria.uniqueResult();
+        EstateAgent result = (EstateAgent) criteria.uniqueResult();
+        session.close();
+        return result;
     }
 
     public List<EstateAgent> getAllAgents() {
@@ -87,7 +88,9 @@ public class DataAccessService {
         session.beginTransaction();
         Criteria criteria = session.createCriteria(Apartment.class);
         criteria.add(Restrictions.eq("estateAgent", agent));
-        return criteria.list();
+        List<Apartment> result = criteria.list();
+        session.close();
+        return result;
     }
 
     public List<House> getAllHousesForAgent(EstateAgent agent) {
@@ -95,7 +98,9 @@ public class DataAccessService {
         session.beginTransaction();
         Criteria criteria = session.createCriteria(House.class);
         criteria.add(Restrictions.eq("estateAgent", agent));
-        return criteria.list();
+        List<House> result = criteria.list();
+        session.close();
+        return result;
     }
 
 

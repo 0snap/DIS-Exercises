@@ -1,7 +1,6 @@
 package de.dis2013.editor;
 
 import de.dis2013.core.DataAccessService;
-import de.dis2013.core.EstateService;
 import de.dis2013.data.Person;
 import de.dis2013.menu.Menu;
 import de.dis2013.menu.PersonSelectionMenu;

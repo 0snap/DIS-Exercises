@@ -4,9 +4,6 @@ import java.util.Date;
 
 import de.dis2013.util.Helper;
 
-/**
- * Mietvertrags-Bean
- */
 public class TenancyContract extends Contract {
 	private Date startDate;
 	private int duration;

@@ -2,7 +2,6 @@ package de.dis2013.editor;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import de.dis2013.core.DataAccessService;
 import de.dis2013.data.*;
@@ -30,25 +29,25 @@ public class ContractEditor {
 		final int SHOW_CONTRACTS = 2;
 		final int BACK = 3;
 		
-		Menu maklerMenu = new Menu("Contract-Menu");
-		maklerMenu.addEntry("New TenancyContract", NEW_LEASING_CONTRACT);
-		maklerMenu.addEntry("New PurchaseContract", NEW_SALE_CONTRACT);
-		maklerMenu.addEntry("Show Contracts", SHOW_CONTRACTS);
+		Menu contractMenu = new Menu("Contract-Menu");
+		contractMenu.addEntry("New TenancyContract", NEW_LEASING_CONTRACT);
+		contractMenu.addEntry("New PurchaseContract", NEW_SALE_CONTRACT);
+		contractMenu.addEntry("Show Contracts", SHOW_CONTRACTS);
 		
-		maklerMenu.addEntry("Back to main menu", BACK);
+		contractMenu.addEntry("Back", BACK);
 		
 		while(true) {
-			int response = maklerMenu.show();
+			int response = contractMenu.show();
 			
 			switch(response) {
 				case NEW_LEASING_CONTRACT:
-					newMietvertrag();
+					newTenancyContract();
 					break;
 				case NEW_SALE_CONTRACT:
-					newKaufvertrag();
+					newPurchaseContract();
 					break;
 				case SHOW_CONTRACTS:
-					zeigeVertraege();
+					showContracts();
 					break;
 				case BACK:
 					return;
@@ -56,7 +55,7 @@ public class ContractEditor {
 		}
 	}
 	
-	public void zeigeVertraege() {
+	public void showContracts() {
 		System.out.println("TenancyContracts\n-----------------");
 		List<TenancyContract> mvs = service.getAllTenancyContractsForAgent(estateAgent);
 		Iterator<TenancyContract> itmv = mvs.iterator();
@@ -88,7 +87,7 @@ public class ContractEditor {
 	
 	
 
-	public void newMietvertrag() {
+	public void newTenancyContract() {
 		List<Apartment> apartments = service.getAllApartmentsForAgent(estateAgent);
 		
 		AppartmentSelectionMenu appartmentMenu = new AppartmentSelectionMenu("Select Apartment for Contract", apartments);
@@ -97,8 +96,8 @@ public class ContractEditor {
 		if(apartmentId != AppartmentSelectionMenu.BACK) {
 			List<Person> persons = service.getAllPersons();
 			
-			PersonSelectionMenu psm = new PersonSelectionMenu("Select Person for Contract", persons);
-			int personId = psm.show();
+			PersonSelectionMenu personMenu = new PersonSelectionMenu("Select Person for Contract", persons);
+			int personId = personMenu.show();
 			
 			if(personId != PersonSelectionMenu.BACK) {
 				TenancyContract tenancyContract = new TenancyContract();
@@ -120,7 +119,7 @@ public class ContractEditor {
 	}
 	
 
-	public void newKaufvertrag() {
+	public void newPurchaseContract() {
 		List<House> houses = service.getAllHousesForAgent(estateAgent);
 		
 		HouseSelectionMenu houseMenu = new HouseSelectionMenu("Select House for Contract", houses);
