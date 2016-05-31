@@ -1,0 +1,13 @@
+dataFileName: persistentData
+logFileName: transactionLog
+
+logging:
+  level: INFO
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
