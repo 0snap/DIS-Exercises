@@ -39,11 +39,8 @@ public class PersistenceResource {
     @POST
     public Response commit(@PathParam("transactionId") String transactionId) {
         Long lsn = logManager.commit(transactionId);
-        boolean success = dataManager.commit(transactionId, lsn);
-        if(success) {
-            return Response.ok().build();
-        }
-        return Response.serverError().build();
+        dataManager.commit(transactionId, lsn);
+        return Response.ok().build();
     }
 
     @Path("/write")
@@ -55,14 +52,12 @@ public class PersistenceResource {
                 writeParameter.getPageId(),
                 writeParameter.getData());
 
-        boolean success = dataManager.write(
-                lsn,
+        dataManager.write(
+                writeParameter.getTransactionId(),
                 writeParameter.getPageId(),
+                lsn,
                 writeParameter.getData());
-        if(success) {
-            return Response.ok().build();
-        }
-        return Response.serverError().build();
+        return Response.ok().build();
     }
 
 }

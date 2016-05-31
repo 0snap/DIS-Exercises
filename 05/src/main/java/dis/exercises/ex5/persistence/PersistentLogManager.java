@@ -8,24 +8,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class PersistentLogManager {
+public class PersistentLogManager extends PersistentFileWriter {
+
+    public static final String CHECKPOINT_IDENTIFIER = "CHECKPOINT";
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentLogManager.class);
-    private final String logFileName;
     private final Path logFile;
     private AtomicLong logSequenceNumber;
 
     public PersistentLogManager(String logFileName) throws IOException {
-        this.logFileName = logFileName;
         logFile = Paths.get("./", logFileName);
         logSequenceNumber = initializeLSN();
     }
 
     private AtomicLong initializeLSN() throws IOException {
-        // this operation is crucial so terminate in error case.
         return new AtomicLong(Files.lines(logFile).count());
     }
 
@@ -47,26 +45,16 @@ public class PersistentLogManager {
         return lsn;
     }
 
-    private boolean persistToLog(Object... toPersist) {
-        String logLine = buildLine(toPersist);
-        try {
-            Files.write(logFile, logLine.getBytes(), StandardOpenOption.APPEND);
-            return true;
-        } catch (IOException ex) {
-            LOG.error("Error writing to log file", ex);
-            return false;
-        }
-
+    public Long markCheckpoint() {
+        Long lsn = getLSN();
+        persistToLog(lsn, CHECKPOINT_IDENTIFIER);
+        return lsn;
     }
 
-    private String buildLine(Object... toCompose) {
-        StringBuilder composedString = new StringBuilder();
-        for(Object obj : toCompose) {
-            composedString.append(obj.toString());
-            composedString.append("\t");
-        }
-        return composedString + "\n"; // terminate line
+    private void persistToLog(Object... toLog) {
+        appendToFile(logFile, toLog);
     }
+
 
     private Long getLSN() {
         return logSequenceNumber.incrementAndGet();
