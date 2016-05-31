@@ -1,6 +1,7 @@
 package dis.exercises.ex5;
 
-import dis.exercises.ex5.persistence.PersistenceManager;
+import dis.exercises.ex5.persistence.PersistentDataManager;
+import dis.exercises.ex5.persistence.PersistentLogManager;
 import dis.exercises.ex5.resources.PersistenceResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -18,7 +19,7 @@ public class MainApplication extends Application<MainConfiguration> {
 
     @Override
     public String getName() {
-        return "Dis-05-Bullshit";
+        return "Dis-05-Persistence";
     }
 
     @Override
@@ -29,9 +30,9 @@ public class MainApplication extends Application<MainConfiguration> {
     @Override
 	public void run(MainConfiguration config, Environment env) throws Exception {
 		LOG.info("Starting server...");
-        PersistenceManager manager = new PersistenceManager(config.getLogFileName(), config.getDataFileName());
-		PersistenceResource persistenceResource =new PersistenceResource(manager);
+        PersistentDataManager dataManager = new PersistentDataManager(config.getDataFileName());
+        PersistentLogManager logManager = new PersistentLogManager(config.getLogFileName());
+        PersistenceResource persistenceResource =new PersistenceResource(dataManager, logManager);
 		env.jersey().register(persistenceResource);
-		LOG.info("Server startup finished.");
 	}
 }

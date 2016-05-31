@@ -1,7 +1,8 @@
 package dis.exercises.ex5.resources;
 
 
-import dis.exercises.ex5.persistence.PersistenceManager;
+import dis.exercises.ex5.persistence.PersistentDataManager;
+import dis.exercises.ex5.persistence.PersistentLogManager;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -12,10 +13,12 @@ import javax.ws.rs.core.Response;
 public class PersistenceResource {
 
 
-    private PersistenceManager persistenceManager;
+    private PersistentDataManager dataManager;
+    private PersistentLogManager logManager;
 
-    public PersistenceResource(PersistenceManager persistenceManager) {
-        this.persistenceManager = persistenceManager;
+    public PersistenceResource(PersistentDataManager dataManager, PersistentLogManager logManager) {
+        this.dataManager = dataManager;
+        this.logManager = logManager;
     }
 
     @Path("/ping")
@@ -27,15 +30,18 @@ public class PersistenceResource {
     @Path("/beginTransaction")
     @POST
     public Response beginTransaction() {
-        return Response.ok(persistenceManager.beginTransaction()).build();
+        String transactionId = dataManager.beginTransaction();
+        logManager.beginTransaction(transactionId);
+        return Response.ok(transactionId).build();
     }
 
     @Path("/commit/{transactionId}")
     @POST
     public Response commit(@PathParam("transactionId") String transactionId) {
-        boolean success = persistenceManager.commit(transactionId);
+        Long lsn = logManager.commit(transactionId);
+        boolean success = dataManager.commit(transactionId, lsn);
         if(success) {
-            Response.ok().build();
+            return Response.ok().build();
         }
         return Response.serverError().build();
     }
@@ -45,12 +51,16 @@ public class PersistenceResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response write(@NotNull WriteParameter writeParameter) {
-        boolean success = persistenceManager.write(
-                writeParameter.getTransactionId(),
+        Long lsn = logManager.write(writeParameter.getTransactionId(),
+                writeParameter.getPageId(),
+                writeParameter.getData());
+
+        boolean success = dataManager.write(
+                lsn,
                 writeParameter.getPageId(),
                 writeParameter.getData());
         if(success) {
-            Response.ok().build();
+            return Response.ok().build();
         }
         return Response.serverError().build();
     }
