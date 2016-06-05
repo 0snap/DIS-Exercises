@@ -2,8 +2,7 @@ package dis.exercises.ex5;
 
 import java.util.List;
 
-import br.ufc.sgbd.recovery.parser.Log;
-import br.ufc.sgbd.recovery.parser.LogRecord;
+
 
 /**
  * Interface that represents the AIRES protocol.
