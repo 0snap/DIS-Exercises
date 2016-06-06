@@ -14,7 +14,7 @@ public class PersistentDataManager extends PersistentFileWriter{
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentDataManager.class);
 
-    private static final Integer THRESHOLD = 5;
+    private static final Integer THRESHOLD = 1;
 
     /** Relative Path to persistent data file */
     private final Path dataFile;
@@ -68,7 +68,7 @@ public class PersistentDataManager extends PersistentFileWriter{
                 for (Integer pageId : pagesInTransaction.keySet()) {
                     Pair<Long, String> pageEntry = pagesInTransaction.get(pageId);
                     // use pageId as linenumber to override
-                    overwriteLineInFile(dataFile, pageId, highestLSN, pageEntry.getValue());
+                    overwriteLineInFile(dataFile, pageId, pageId, highestLSN, pageEntry.getValue());
                     buffer.remove(committedTransaction);
                 }
             }
