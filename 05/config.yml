@@ -1,5 +1,5 @@
-dataFileName: persistentData.tsv
-logFileName: transactionLog.tsv
+dataFileName: data/persistentData.tsv
+logFileName: data/transactionLog.tsv
 
 logging:
   level: INFO
