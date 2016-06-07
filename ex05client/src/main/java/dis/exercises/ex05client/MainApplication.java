@@ -18,8 +18,8 @@ import java.util.Random;
 
 public class MainApplication{
     public static void main(final String[] args) {
-        int numberOfSimultaneousExecutions = 5;
-        int numberOfRuns = 10;
+        int numberOfSimultaneousExecutions = 6;
+        int numberOfRuns = 1;
         for (int j = 0; j < numberOfRuns; j++){
             java.util.concurrent.Executor executor = java.util.concurrent.Executors.newFixedThreadPool(numberOfSimultaneousExecutions);
             for (int i = 0; i < numberOfSimultaneousExecutions; i++) {
@@ -47,7 +47,7 @@ class Run{
         clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
         Client client = com.sun.jersey.api.client.Client.create(clientConfig);
 
-        String data = "hier kommt der Data shit hin";
+        String[] data = {"Corny mag huebsche Frauen", "das ist eine Datensatz", "pingpong"};
 
         String transactionId = beginTransaction(client, url);
         writePost(client, url, transactionId,threadId , data);
@@ -72,11 +72,12 @@ class Run{
         return "shit fucked up";
     }
 
-    private static void writePost(Client client, String url, String transId,int clientId, String data){
+    private static void writePost(Client client, String url, String transId,int clientId, String[] dataArray){
         String apiUrl = url + "/write";
         Random rand = new Random();
         int pageId = rand.nextInt(10) +1 +  10*clientId;
-
+        int random = rand.nextInt(15) +1;
+        String data = dataArray[(pageId+random)%dataArray.length];
 
         try {
             WebResource webResource = client.resource(apiUrl);
@@ -84,14 +85,14 @@ class Run{
                     .post(ClientResponse.class, "{\"transactionId\": \"" + transId +  "\", \"pageId\":"+ pageId +", \"data\": \"" + data + "\"}");
             if (response.getStatus() != 200) {
                 throw new RuntimeException("Failed on write: HTTP error code : "
-                        + response.getStatus()+ "transID: " + transId
+                        + response.getStatus()+ " transID: " + transId
                         + ", pageId: " + Integer.toString(pageId)
                         + ", clientId: " + Integer.toString(clientId)
                         );
             }
             System.out.println("Write done ; transId: " + transId
-                    + "pageId: " + Integer.toString(pageId)
-                    + "clientId:" + Integer.toString(clientId));
+                    + " pageId: " + Integer.toString(pageId)
+                    + " clientId:" + Integer.toString(clientId));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -106,7 +107,7 @@ class Run{
                     .post(ClientResponse.class, "penis");
             if (response.getStatus() != 200) {
                 throw new RuntimeException("Failed on commit: HTTP error code : " + response.getStatus()
-                + "transId: " + transId);
+                + " transId: " + transId);
             }
             String output = response.getEntity(String.class);
             System.out.println("Commit done; transId: " + transId);

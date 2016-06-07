@@ -25,7 +25,7 @@ public class RecoveryManager {
                 int loggedPage = Integer.parseInt(logEntry.split("\t")[2]);
                 // struct is pageId, lsn, data
                 String pageEntry = dataManager.getPageEntry(loggedPage);
-                if(pageEntry == null || Long.parseLong(pageEntry.split("\t")[1]) < loggedLsn) {
+                if(pageEntry == null || (!pageEntry.equals("") && Long.parseLong(pageEntry.split("\t")[1]) < loggedLsn)) {
                     String loggedData = logEntry.split("\t")[3];
                     LOG.info("Recovering uncommitted TID " + uncommittedTransactionId + " and data '" + loggedData + "' to buffer.");
                     dataManager.write(uncommittedTransactionId, loggedPage, loggedLsn, loggedData);
