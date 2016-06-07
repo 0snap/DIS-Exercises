@@ -8,3 +8,18 @@
 8	ebd1082b-7770-40d6-9827-79f92cc5a964	COMMITTED	
 9	ebd1082b-7770-40d6-9827-79f92cc5a964	1	Client 1 schreibt auf page 1	
 10	ebd1082b-7770-40d6-9827-79f92cc5a964	3	Client 1 schreibt auf page 3	
+11	3dfb3ab3-36c3-4602-9b0b-0999043c8f99	TRANSIENT	
+12	3a841f83-b0dd-4269-9b26-2507e219e2be	TRANSIENT	
+13	1eeae48e-e366-4040-ad6d-b65c271a2153	TRANSIENT	
+14	6b1cff78-4cf1-43a1-94b6-95619d6a0c81	TRANSIENT	
+15	093dfe37-4972-40ef-ac91-a27bb76a4555	TRANSIENT	
+16	ebd1082b-7770-40d6-9827-79f92cc5a964	1	Client 1 schreibt auf page 1	
+17	976cfcab-b3fb-40d3-b11d-310c7a1fa650	TRANSIENT	
+18	976cfcab-b3fb-40d3-b11d-310c7a1fa650	1	Client 1 schreibt auf page 1	
+19	60b56f13-39c4-44d3-9e0c-6e2b68b48cda	TRANSIENT	
+20	60b56f13-39c4-44d3-9e0c-6e2b68b48cda	1	Client 1 schreibt auf page 1	
+21	86f55104-2f7d-4e8d-8791-170c69c6de21	TRANSIENT	
+22	86f55104-2f7d-4e8d-8791-170c69c6de21	1	Client 1 schreibt auf page 1	
+23	b27bc3da-4a91-477d-9f31-8d8b40592fcd	TRANSIENT	
+24	b27bc3da-4a91-477d-9f31-8d8b40592fcd	1	Client 1 schreibt auf page 1	
+25	b27bc3da-4a91-477d-9f31-8d8b40592fcd	COMMITTED	

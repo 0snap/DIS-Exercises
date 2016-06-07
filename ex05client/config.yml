@@ -1,0 +1,12 @@
+dataFileName: data/persistentData.tsv
+logFileName: data/transactionLog.tsv
+
+logging:
+  level: INFO
+
+
+apiURL: http://localhost:8080
+
+jerseyClient:
+    timeout: 512ms
+    workQueueSize: 16
