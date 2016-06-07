@@ -77,7 +77,9 @@ public class PersistentLogManager extends PersistentFileAccessor {
         Map<String, List<String>> allTransactions = getLogentriesGroupedByTransactionID();
         Map<String, List<String>> result = new HashMap<>();
         for(String tId : allTransactions.keySet()) {
-            boolean committed = allTransactions.get(tId).stream().anyMatch(entry -> entry.contains(TransactionState.COMMITTED.toString()));
+            boolean committed = allTransactions.get(tId).stream().
+                    anyMatch(entry -> entry.contains(TransactionState.COMMITTED.toString()) ||
+                    entry.contains(TransactionState.TRANSIENT.toString()));
             if( ! committed) {
                 result.put(tId, allTransactions.get(tId));
             }
