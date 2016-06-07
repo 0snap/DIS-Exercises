@@ -14,18 +14,39 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+import java.util.Random;
 
 public class MainApplication{
+    public static void main(final String[] args) {
+        int numberOfSimultaneousExecutions = 2;
+        java.util.concurrent.Executor executor = java.util.concurrent.Executors.newFixedThreadPool(numberOfSimultaneousExecutions);
+        for (int i = 0; i < numberOfSimultaneousExecutions; i++) {
+            final int thread_id = i;
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Run.run(thread_id);
+                }
+            });
+        }
+    }
+}
+
+
+
+class Run{
     private static final Logger LOG = LoggerFactory.getLogger(MainApplication.class);
 
-    public static void main(String[] args) {
+    public static void run(int threadId) {
         String url = "http://localhost:8080/persistence";
         ClientConfig clientConfig = new DefaultClientConfig();
         clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
         Client client = com.sun.jersey.api.client.Client.create(clientConfig);
+
+        String data = "hier kommt der Data shit hin";
+
         String transactionId = beginTransaction(client, url);
-        writePost(client, url, transactionId);
+        writePost(client, url, transactionId,threadId , data);
         commit(client, url, transactionId);
     }
 
@@ -47,12 +68,16 @@ public class MainApplication{
         return "shit fucked up";
     }
 
-    private static void writePost(Client client, String url, String transId){
+    private static void writePost(Client client, String url, String transId,int userId, String data){
         String apiUrl = url + "/write";
+        Random rand = new Random();
+        int pageId = rand.nextInt(10) + 10*userId;
+
+
         try {
             WebResource webResource = client.resource(apiUrl);
             ClientResponse response = webResource.accept("application/json").type("application/json")
-                    .post(ClientResponse.class, "{\"transactionId\": \"" + transId +  "\", \"pageId\": 1, \"data\": \"Client 1 schreibt auf page 1\"}");
+                    .post(ClientResponse.class, "{\"transactionId\": \"" + transId +  "\", \"pageId\":"+ pageId +", \"data\": \"" + data + "\"}");
             if (response.getStatus() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
             }
