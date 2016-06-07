@@ -56,7 +56,7 @@ class Run{
             WebResource webResource = client.resource(apiUrl);
             ClientResponse response = webResource.accept("application/json").type("application/json").post(ClientResponse.class, "penis");
             if (response.getStatus() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
+                throw new RuntimeException("Failed on begin: HTTP error code : " + response.getStatus());
             }
             String output = response.getEntity(String.class);
             System.out.println("Server response .... \n");
@@ -68,10 +68,10 @@ class Run{
         return "shit fucked up";
     }
 
-    private static void writePost(Client client, String url, String transId,int userId, String data){
+    private static void writePost(Client client, String url, String transId,int clientId, String data){
         String apiUrl = url + "/write";
         Random rand = new Random();
-        int pageId = rand.nextInt(10) + 10*userId;
+        int pageId = rand.nextInt(10) +1 +  10*clientId;
 
 
         try {
@@ -79,7 +79,9 @@ class Run{
             ClientResponse response = webResource.accept("application/json").type("application/json")
                     .post(ClientResponse.class, "{\"transactionId\": \"" + transId +  "\", \"pageId\":"+ pageId +", \"data\": \"" + data + "\"}");
             if (response.getStatus() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
+                throw new RuntimeException("Failed on write: HTTP error code : " +
+                        response.getStatus()+ "transID, clientId, pageId:" + transId + " " +
+                        Integer.toString(clientId)+ " " + Integer.toString(pageId));
             }
             System.out.println("Write done \n");
 
@@ -95,7 +97,8 @@ class Run{
             ClientResponse response = webResource.accept("application/json").type("application/json")
                     .post(ClientResponse.class, "penis");
             if (response.getStatus() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
+                throw new RuntimeException("Failed on commit: HTTP error code : " + response.getStatus()
+                + "transId: " + transId);
             }
             String output = response.getEntity(String.class);
             System.out.println("Commit done \n");
