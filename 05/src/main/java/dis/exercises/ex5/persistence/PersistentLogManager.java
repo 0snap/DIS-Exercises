@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class PersistentLogManager extends PersistentFileAccessor {
 
@@ -78,11 +79,23 @@ public class PersistentLogManager extends PersistentFileAccessor {
         Map<String, List<String>> result = new HashMap<>();
         for(String tId : allTransactions.keySet()) {
             boolean committed = allTransactions.get(tId).stream().
-                    anyMatch(entry -> entry.contains(TransactionState.COMMITTED.toString()) ||
-                    entry.contains(TransactionState.TRANSIENT.toString()));
-            if( ! committed) {
+                    anyMatch(entry -> entry.contains(TransactionState.COMMITTED.toString()));
+            if( ! committed ) {
                 result.put(tId, allTransactions.get(tId));
             }
+        }
+        return result;
+    }
+
+    public Map<String, List<String>> getCleanedLoggedTAs() {
+        Map<String, List<String>> allTransactions = getLogentriesGroupedByTransactionID();
+        Map<String, List<String>> result = new HashMap<>();
+        for(String tId : allTransactions.keySet()) {
+            List<String> entries =  allTransactions.get(tId).stream().
+                    filter(entry -> !entry.contains(TransactionState.COMMITTED.toString()) &&
+                    !entry.contains(TransactionState.TRANSIENT.toString())).collect(Collectors.toList());
+            result.put(tId, entries);
+
         }
         return result;
     }

@@ -17,7 +17,7 @@ public class RecoveryManager {
         this.logManager = logManager;
     }
     public void recoverBufferAfterCrash() {
-        Map<String, List<String>> uncommittedTransactions = logManager.getLogentriesOfUncommittedTAs();
+        Map<String, List<String>> uncommittedTransactions = logManager.getCleanedLoggedTAs();
         for (String uncommittedTransactionId :  uncommittedTransactions.keySet()) {
             for (String logEntry : uncommittedTransactions.get(uncommittedTransactionId)) {
                 // struct is lsn, transactionId, pageId, data

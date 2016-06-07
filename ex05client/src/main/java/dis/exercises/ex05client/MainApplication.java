@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class MainApplication{
     public static void main(final String[] args) {
-        int numberOfSimultaneousExecutions = 2;
+        int numberOfSimultaneousExecutions = 5;
         java.util.concurrent.Executor executor = java.util.concurrent.Executors.newFixedThreadPool(numberOfSimultaneousExecutions);
         for (int i = 0; i < numberOfSimultaneousExecutions; i++) {
             final int thread_id = i;
