@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class PersistentDataManager extends PersistentFileWriter{
+public class PersistentDataManager extends PersistentFileAccessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentDataManager.class);
 
@@ -44,6 +44,10 @@ public class PersistentDataManager extends PersistentFileWriter{
     public void commit(String transactionId, Long logSequenceNumber) {
         committedTransactions.put(transactionId, logSequenceNumber);
         flushOnThreshold();
+    }
+
+    public String getPageEntry(int pageId) {
+        return readLineFromFile(dataFile, pageId);
     }
 
     private void storeToBuffer(String transactionId, int pageId, Long logSequenceNumber, String data) {
