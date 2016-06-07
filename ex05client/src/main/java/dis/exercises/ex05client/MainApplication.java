@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class MainApplication{
     public static void main(final String[] args) {
-        int numberOfSimultaneousExecutions = 2;
+        int numberOfSimultaneousExecutions = 5;
         java.util.concurrent.Executor executor = java.util.concurrent.Executors.newFixedThreadPool(numberOfSimultaneousExecutions);
         for (int i = 0; i < numberOfSimultaneousExecutions; i++) {
             final int thread_id = i;
@@ -59,7 +59,7 @@ class Run{
                 throw new RuntimeException("Failed on begin: HTTP error code : " + response.getStatus());
             }
             String output = response.getEntity(String.class);
-            System.out.println("Server response .... \n");
+            System.out.println("Server response ....");
             System.out.println(output);
             return output;
         } catch (Exception e) {
@@ -79,11 +79,15 @@ class Run{
             ClientResponse response = webResource.accept("application/json").type("application/json")
                     .post(ClientResponse.class, "{\"transactionId\": \"" + transId +  "\", \"pageId\":"+ pageId +", \"data\": \"" + data + "\"}");
             if (response.getStatus() != 200) {
-                throw new RuntimeException("Failed on write: HTTP error code : " +
-                        response.getStatus()+ "transID, clientId, pageId:" + transId + " " +
-                        Integer.toString(clientId)+ " " + Integer.toString(pageId));
+                throw new RuntimeException("Failed on write: HTTP error code : "
+                        + response.getStatus()+ "transID: " + transId
+                        + ", pageId: " + Integer.toString(pageId)
+                        + ", clientId: " + Integer.toString(clientId)
+                        );
             }
-            System.out.println("Write done \n");
+            System.out.println("Write done ; transId: " + transId
+                    + "pageId: " + Integer.toString(pageId)
+                    + "clientId:" + Integer.toString(clientId));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,7 +105,7 @@ class Run{
                 + "transId: " + transId);
             }
             String output = response.getEntity(String.class);
-            System.out.println("Commit done \n");
+            System.out.println("Commit done; transId: " + transId);
             System.out.println(output);
 
         } catch (Exception e) {
