@@ -19,16 +19,20 @@ import java.util.Random;
 public class MainApplication{
     public static void main(final String[] args) {
         int numberOfSimultaneousExecutions = 5;
-        java.util.concurrent.Executor executor = java.util.concurrent.Executors.newFixedThreadPool(numberOfSimultaneousExecutions);
-        for (int i = 0; i < numberOfSimultaneousExecutions; i++) {
-            final int thread_id = i;
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Run.run(thread_id);
-                }
-            });
+        int numberOfRuns = 10;
+        for (int j = 0; j < numberOfRuns; j++){
+            java.util.concurrent.Executor executor = java.util.concurrent.Executors.newFixedThreadPool(numberOfSimultaneousExecutions);
+            for (int i = 0; i < numberOfSimultaneousExecutions; i++) {
+                final int thread_id = i;
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Run.run(thread_id);
+                    }
+                });
+            }
         }
+
     }
 }
 
