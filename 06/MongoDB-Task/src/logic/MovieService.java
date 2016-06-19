@@ -42,13 +42,13 @@ public class MovieService extends MovieServiceBase {
 	public MovieService() {
 		// Connect to local machine
 		try {
-			// TODO: connect to MongoDB
-			mongo = null;
+			// TODO: connect to MongoDB; DONE
+			mongo = new MongoClient("localhost", 27017);
 		} catch (Exception e) {
 			System.out.println("No MongoDB server running on localhost");
 		}
-		// TODO: Select database "imdb"
-		db = null;
+		// TODO: Select database "imdb"; DONE but not tested
+		db = mongo.getDB("imdb");
 		// Create a GriFS FileSystem Object using the db
 		fs = new GridFS(db);
 		// See this method on how to use GridFS
@@ -58,9 +58,9 @@ public class MovieService extends MovieServiceBase {
 		// Enable Full Text Search
 		enableTextSearch();
 
-		// TODO: Take "movies" and "tweets" collection
-		movies = null;
-		tweets = null;
+		// TODO: Take "movies" and "tweets" collection; DONE but not tested
+		movies = db.getCollection("movies");
+		tweets = db.getCollection("tweets");
 
 		// If movie database isn't filled (has less than 10000 documents) delete
 		// everything and fill it
@@ -68,8 +68,13 @@ public class MovieService extends MovieServiceBase {
 			createMovieData();
 		}
 
-		// TODO: Index Movie attributes "title", "rating", "votes", "tweets.coordinates"
+		// TODO: Index Movie attributes "title", "rating", "votes", "tweets.coordinates"; DONE but not tested
+        movies.createIndex(new BasicDBObject("title", 1));
+        movies.createIndex(new BasicDBObject("rating", 1));
+        movies.createIndex(new BasicDBObject("votes", 1));
+        movies.createIndex(new BasicDBObject("tweets.coordinates", 1));
 
+		// deprecated!!
 		tweets.ensureIndex(new BasicDBObject("coordinates", "2dsphere"));
 	}
 
@@ -92,8 +97,10 @@ public class MovieService extends MovieServiceBase {
 	 * @return the matching DBObject
 	 */
 	public DBObject findMovieByTitle(String title) {
-		// TODO: implement
-		DBObject result = null;
+		// TODO: implement; DONE but not tested
+        BasicDBObject query = new BasicDBObject("title", title);
+		DBCursor cursor = movies.find(query);
+        DBObject result = cursor.curr();
 		return result;
 	}
 
