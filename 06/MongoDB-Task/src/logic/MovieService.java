@@ -1,24 +1,15 @@
 package logic;
 
 import java.io.InputStream;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
+import com.mongodb.*;
+import com.sun.xml.internal.txw2.Document;
 import twitter4j.GeoLocation;
 import twitter4j.Status;
 import twitter4j.json.DataObjectFactory;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.CommandResult;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
@@ -129,8 +120,12 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor getBestMovies(int minVotes, double minRating, int limit) {
-		// TODO: implement
-		DBCursor best = null;
+		// TODO: implement; DONE not tested; could also be done with Querybuilder
+        DBObject query = QueryBuilder.start().and(
+                QueryBuilder.start().put("movies.rating").greaterThan(minRating).get(),
+                QueryBuilder.start().put("movies.votes").greaterThan(minVotes).get()
+        ).get();
+        DBCursor best = movies.find(query).sort(new BasicDBObject("movies.rating", -1));
 		return best;
 	}
 
@@ -146,8 +141,14 @@ public class MovieService extends MovieServiceBase {
 	 */
 	public DBCursor getByGenre(String genreList, int limit) {
 		String[] genres = genreList.split(",");
-		//TODO: implement
-		DBCursor result = null;
+		//TODO: implement; kind of DONE not tested; "$contains" needs to be changed
+        DBObject query = new BasicDBObject();
+        List<BasicDBObject> andQuery = new ArrayList<BasicDBObject>();
+        for(int i=0; i < genres.length; i++){
+            andQuery.add(new BasicDBObject("movies.genre", new BasicDBObject("$contains", genres[i])));
+        }
+        query.put("$and", andQuery);
+		DBCursor result = movies.find(query);
 		return result;
 	}
 
