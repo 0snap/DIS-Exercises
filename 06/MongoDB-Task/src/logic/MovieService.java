@@ -92,9 +92,7 @@ public class MovieService extends MovieServiceBase {
 	public DBObject findMovieByTitle(String title) {
 		// TODO: implement; DONE but not tested
         BasicDBObject query = new BasicDBObject("title", title);
-		DBCursor cursor = movies.find(query);
-        DBObject result = cursor.curr();
-		return result;
+		return movies.findOne(query);
 	}
 
 	/**
@@ -104,8 +102,7 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor getViewableMovies() {
-		DBCursor results = movies.find(new BasicDBObject("tweets.coordinates", new BasicDBObject("$exists", true)));
-		return results;
+		return movies.find(new BasicDBObject("tweets.coordinates", new BasicDBObject("$exists", true)));
 	}
 
 	/**
@@ -124,34 +121,34 @@ public class MovieService extends MovieServiceBase {
 	public DBCursor getBestMovies(int minVotes, double minRating, int limit) {
 		// TODO: implement; DONE not tested; could also be done with Querybuilder
         DBObject query = QueryBuilder.start().and(
-                QueryBuilder.start().put("movies.rating").greaterThan(minRating).get(),
-                QueryBuilder.start().put("movies.votes").greaterThan(minVotes).get()
+				new BasicDBObject("rating", new BasicDBObject("$gte", minRating)),
+				new BasicDBObject("votes", new BasicDBObject("$gte", minVotes))
         ).get();
-        DBCursor best = movies.find(query).sort(new BasicDBObject("movies.rating", -1));
-		return best;
+        DBCursor best = movies.find(query).sort(new BasicDBObject("rating", -1));
+		return best.limit(limit);
 	}
 
 	/**
 	 * Find movies by genres. To achieve that, find all movies whose "genre"
 	 * property contains all of the specified genres.
 	 * 
-	 * @param genreList
+	 * @param genreCommaSeperated
 	 *            comma-separated genres
 	 * @param limit
 	 *            maximum number of records to be returned
 	 * @return the DBCursor for the query
 	 */
-	public DBCursor getByGenre(String genreList, int limit) {
-		String[] genres = genreList.split(",");
+	public DBCursor getByGenre(String genreCommaSeperated, int limit) {
 		//TODO: implement; kind of DONE not tested; "$contains" needs to be changed
-        DBObject query = new BasicDBObject();
-        List<BasicDBObject> andQuery = new ArrayList<BasicDBObject>();
-        for(int i=0; i < genres.length; i++){
-            andQuery.add(new BasicDBObject("movies.genre", new BasicDBObject("$contains", genres[i])));
-        }
-        query.put("$and", andQuery);
-		DBCursor result = movies.find(query);
-		return result;
+		String[] genres = genreCommaSeperated.split(",");
+		ArrayList<String> genreList = new ArrayList<>();
+		for (String fuck: genres) {
+			genreList.add(fuck.trim());
+			System.out.println(fuck.trim());
+		}
+        DBObject query = new BasicDBObject("genre", new BasicDBObject("$all", genreList));
+		DBCursor cur = movies.find(query).limit(limit);
+		return cur;
 	}
 
 	/**
@@ -169,7 +166,6 @@ public class MovieService extends MovieServiceBase {
 	public DBCursor searchByPrefix(String titlePrefix, int limit) {
 		//TODO: implement; DONE but not tested
 		DBObject prefixQuery = new BasicDBObject("title", Pattern.compile("^"+titlePrefix+".*"));
-
 		return movies.find(prefixQuery).limit(limit);
 	}
 
@@ -206,7 +202,7 @@ public class MovieService extends MovieServiceBase {
 	 */
 	public DBCursor getTweetedMovies() {
 		//TODO: implement; DONE not tested
-        DBObject query = new BasicDBObject("tweets", true);
+        DBObject query = new BasicDBObject("tweets", new BasicDBObject("$exists", true));
 		DBCursor results = movies.find(query);
 		return results;
 	}
