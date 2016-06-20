@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import com.mongodb.*;
+import com.sun.xml.internal.messaging.saaj.util.*;
+import com.sun.xml.internal.messaging.saaj.util.Base64;
 import com.sun.xml.internal.txw2.Document;
 import twitter4j.GeoLocation;
 import twitter4j.Status;
@@ -165,8 +167,9 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor searchByPrefix(String titlePrefix, int limit) {
-		//TODO: implement
-		DBObject prefixQuery = null;
+		//TODO: implement; DONE but not tested
+		DBObject prefixQuery = new BasicDBObject("title", Pattern.compile("^"+titlePrefix+".*"));
+
 		return movies.find(prefixQuery).limit(limit);
 	}
 
@@ -202,8 +205,9 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor getTweetedMovies() {
-		//TODO: implement
-		DBCursor results = null;
+		//TODO: implement; DONE not tested
+        DBObject query = new BasicDBObject("tweets", true);
+		DBCursor results = movies.find(query);
 		return results;
 	}
 
