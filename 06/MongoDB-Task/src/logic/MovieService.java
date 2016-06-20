@@ -134,7 +134,6 @@ public class MovieService extends MovieServiceBase {
 		ArrayList<String> genreList = new ArrayList<>();
 		for (String fuck: genres) {
 			genreList.add(fuck.trim());
-			System.out.println(fuck.trim());
 		}
         DBObject query = new BasicDBObject("genre", new BasicDBObject("$all", genreList));
 		DBCursor cur = movies.find(query).limit(limit);
@@ -204,8 +203,7 @@ public class MovieService extends MovieServiceBase {
 	 *            the comment to save
 	 */
 	public void saveMovieComment(String id, String comment) {
-		//TODO: implement
-
+		movies.update(new BasicDBObject("_id", id), new BasicDBObject("$set", new BasicDBObject("comment", comment)));
 	}
 
 	/**
@@ -436,8 +434,10 @@ public class MovieService extends MovieServiceBase {
 	 * @return The retrieved GridFS File
 	 */
 	public GridFSDBFile getFile(String name) {
-		//TODO: implement
-		GridFSDBFile file = null;
+		GridFSDBFile file = fs.findOne(name);
+		if(file == null) {
+			file = fs.findOne("sample.png");
+		}
 		return file;
 	}
 
@@ -451,10 +451,12 @@ public class MovieService extends MovieServiceBase {
 	 * @param contentType
 	 */
 	public void saveFile(String name, InputStream inputStream, String contentType) {
-		GridFSInputFile gFile = null;
 		//Remove old versions
 		fs.remove(name);
-		//TODO: implement
+		GridFSInputFile file = fs.createFile(inputStream);
+		file.setContentType(contentType);
+		file.setFilename(name);
+		file.save();
 	}
 
 	// Given Helper Functions:
